@@ -9,6 +9,6 @@ CREATE TABLE `usertimetable` (
   `timeleftminutes` decimal(6,2) DEFAULT NULL,
   `bonustimeminutes` decimal(6,2) DEFAULT NULL,
   `computername` varchar(20) DEFAULT NULL,
-  `bonuscounters` int(11) DEFAULT NULL,
+  `bonuscounters` decimal(6,2) DEFAULT NULL,
   PRIMARY KEY (`usertimetableid`)
 ) /*ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4*/;
