@@ -174,7 +174,7 @@ table {
                 }
                 row_header +=  "<th>" + column_header + "</th>";
               };
-              if (new_key != "username" && new_key != "bonuscounters"){
+              if (new_key != "username"){
                 row += "<td>" + new_val.split(".")[0] + "</td>";
               } else {
                 row += "<td>" + new_val + "</td>";
