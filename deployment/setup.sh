@@ -24,7 +24,7 @@ do
      case $OPTION in
          h)
              usage
-             exit 1
+             exit 0
              ;;
          p)
              DB_PASSWD=$OPTARG
@@ -37,7 +37,7 @@ do
              ;;
          ?)
              usage
-             exit
+             exit 1
              ;;
      esac
 done
