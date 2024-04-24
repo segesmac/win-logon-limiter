@@ -2,7 +2,7 @@
 
 include(__DIR__ . "/../../password.php");
 
-$servername = "localhost";
+$servername = "wlldb";
 $username = "timeuser";
 $dbname = "winlogonlimiter";
 

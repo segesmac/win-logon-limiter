@@ -1,5 +1,5 @@
 <?php
 
-$password = "WOULDNTYOULIKETOKNOW";
+$password = "##DB_PASSWORD##";
 
 ?>
