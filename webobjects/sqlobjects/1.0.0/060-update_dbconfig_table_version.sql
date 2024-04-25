@@ -1,2 +1,2 @@
 UPDATE `dbconfigtable`
-SET dbversion = '1.0.0'
+SET dbversion = '1.0.0';

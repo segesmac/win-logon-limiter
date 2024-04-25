@@ -2,7 +2,7 @@ services:
    wlldb:
      image: mysql:latest
      volumes:
-       - db_data:/var/lib/mysql
+       - wll_db_data:/var/lib/mysql
      environment:
        MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
        MYSQL_DATABASE: winlogonlimiter
@@ -19,8 +19,6 @@ services:
      ports:
        - "8000:80"
      environment:
-       WLL_DB_HOST: wlldb:3306
-       WLL_DB_USER: timeuser
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
      secrets:
        - db_password
@@ -33,6 +31,6 @@ secrets:
      file: db_root_password.txt
 
 volumes:
-    db_data:
+    wll_db_data:
 
 # docker compose -f docker_compose.yml up -d
