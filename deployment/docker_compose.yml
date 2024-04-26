@@ -17,7 +17,7 @@ services:
        - wlldb
      image: win-logon-limiter:latest
      ports:
-       - "8000:80"
+       - "80:80"
      environment:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
      secrets:
