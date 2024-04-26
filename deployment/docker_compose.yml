@@ -11,10 +11,16 @@ services:
      secrets:
        - db_root_password
        - db_password
+     healthcheck:
+       test: mysql -uroot -p$$(< /run/secrets/db_root_password) --database=winlogonlimiter -e "SHOW TABLES;" || exit 1
+       interval: 10s
+       timeout: 10s
+       retries: 5
 
    wllweb:
      depends_on:
-       - wlldb
+       wlldb:
+         condition: service_healthy
      image: win-logon-limiter:latest
      ports:
        - "80:80"

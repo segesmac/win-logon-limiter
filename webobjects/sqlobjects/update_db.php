@@ -1,8 +1,8 @@
 #!/usr/local/bin/php
 <?php
-#include("/var/www/html/api/connect.php");
-include("/var/www/password.php");
-
+include("/var/www/html/api/connect.php");
+#include("/var/www/password.php");
+/*
 $servername = "wlldb";
 $username = "timeuser";
 $dbname = "winlogonlimiter";
@@ -36,24 +36,24 @@ while ($retry_count < $retry_max){
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
-
+ */
 $path = "/tools/dbupdater";
 $original_path = $path;
 $query="SELECT dbconfigvalue FROM dbconfigtable WHERE dbconfigkey = 'version'";
+$response_successful = true;
 $response=array();
 try {
     $result=mysqli_query($conn, $query);
     while($row=mysqli_fetch_assoc($result)){
         $response[]=$row;
     }
+#    echo "Response: \n";
+#    echo var_export($response[0],true);
 } catch (Exception $e){
     echo 'Caught exception: ',  $e->getMessage(), "\n";
+    $response_successful = false;
 }
-echo "Response: \n";
-echo var_export($response[0],true);
-echo "Full Response: \n";
-echo var_export($response,true);
-if (count($response[0]) == 1){
+if ($response_successful){
     $version_number = $response[0]["dbconfigvalue"];
     echo "Version Number: " . $version_number . "\n";
     $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
