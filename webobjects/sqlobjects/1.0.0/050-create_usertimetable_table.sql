@@ -5,10 +5,10 @@ CREATE TABLE `usertimetable` (
   `isloggedon` tinyint(1) DEFAULT NULL,
   `lastlogon` datetime DEFAULT NULL,
   `lastheartbeat` datetime DEFAULT NULL,
-  `timelimitminutes` decimal(6,2) DEFAULT NULL,
-  `timeleftminutes` decimal(6,2) DEFAULT NULL,
-  `bonustimeminutes` decimal(6,2) DEFAULT NULL,
+  `timelimitminutes` decimal(6,2) DEFAULT 60.0,
+  `timeleftminutes` decimal(6,2) DEFAULT 0.0,
+  `bonustimeminutes` decimal(6,2) DEFAULT 0.0,
   `computername` varchar(20) DEFAULT NULL,
-  `bonuscounters` decimal(6,2) DEFAULT NULL,
+  `bonuscounters` decimal(6,2) DEFAULT 0.0,
   PRIMARY KEY (`usertimetableid`)
 ) /*ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4*/;

@@ -1,6 +1,41 @@
 #!/usr/local/bin/php
 <?php
-include("/var/www/html/api/connect.php");
+#include("/var/www/html/api/connect.php");
+include("/var/www/password.php");
+
+$servername = "wlldb";
+$username = "timeuser";
+$dbname = "winlogonlimiter";
+
+if (empty($password)){
+    die ("You must include a password variable in the ../../password.php file.");
+}
+
+// Create connection
+$retry_max = 10;
+$retry_count = 0;
+$conn = null;
+while ($retry_count < $retry_max){
+    try {
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+    } catch (Exception $e) {
+        echo "Caught exception on try $retry_count: ",  $e->getMessage(), "\n";
+        if ($conn){
+            if (mysqli_ping($conn)) {
+                printf ("Our connection is ok!\n");
+                break;
+            } else {
+                printf ("Error: %s\n", mysqli_error($conn));
+            }
+        }
+        sleep(5);
+        $retry_count++;
+    }
+}
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
 $path = "/tools/dbupdater";
 $original_path = $path;
@@ -14,8 +49,12 @@ try {
 } catch (Exception $e){
     echo 'Caught exception: ',  $e->getMessage(), "\n";
 }
-if (count($response) == 1){
-    $version_number = $response[0];
+echo "Response: \n";
+echo var_export($response[0],true);
+echo "Full Response: \n";
+echo var_export($response,true);
+if (count($response[0]) == 1){
+    $version_number = $response[0]["dbconfigvalue"];
     echo "Version Number: " . $version_number . "\n";
     $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
     $found_version = false;
@@ -53,4 +92,5 @@ if ($path != $original_path){
 } else {
     echo "DB is already up to date.\n";
 }
+mysqli_close($conn);
 ?>
