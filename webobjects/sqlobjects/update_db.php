@@ -4,11 +4,15 @@ include("/var/www/html/api/connect.php");
 
 $path = "/tools/dbupdater";
 $original_path = $path;
-$query="SELECT dbversion FROM dbconfigtable";
-$result=mysqli_query($conn, $query);
+$query="SELECT dbconfigvalue FROM dbconfigtable WHERE dbconfigkey = 'version'";
 $response=array();
-while($row=mysqli_fetch_assoc($result)){
-    $response[]=$row;
+try {
+    $result=mysqli_query($conn, $query);
+    while($row=mysqli_fetch_assoc($result)){
+        $response[]=$row;
+    }
+} catch (Exception $e){
+    echo 'Caught exception: ',  $e->getMessage(), "\n";
 }
 if (count($response) == 1){
     $version_number = $response[0];
@@ -26,7 +30,7 @@ if (count($response) == 1){
         }
     }
 } else {
-    echo "Unable to obtain version number.  Creating config db.";
+    echo "Unable to obtain version number.  Creating config db.\n";
     $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
     $found_version = true;
     foreach ($scriptfolders as $scriptfolder){
@@ -47,6 +51,6 @@ if ($path != $original_path){
         mysqli_query($conn, $statement);
     }
 } else {
-    echo "DB is already up to date.";
+    echo "DB is already up to date.\n";
 }
 ?>

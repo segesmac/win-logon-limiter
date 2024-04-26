@@ -1,5 +1,5 @@
 CREATE TABLE `dbconfigtable` (
-  `dbconfigid` int(11) NOT NULL AUTO_INCREMENT,
-  `dbversion` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`dbconfigtable`)
+  `dbconfigkey` varchar(50) NOT NULL,
+  `dbconfigvalue` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`dbconfigkey`)
 ) /*ENGINE=InnoDB DEFAULT CHARSET=utf8mb4*/;

@@ -1,2 +1,1 @@
-UPDATE `dbconfigtable`
-SET dbversion = '1.0.0';
+ REPLACE INTO `dbconfigtable` VALUES ('version', '1.0.0');
