@@ -1,0 +1,23 @@
+image: docker:26.1.1
+
+stages:
+  - test
+  - build
+  - inttest
+  - deploy
+
+services:
+  - docker:26.1.1-dind
+
+get-version-number-job:
+  stage: .pre
+  image:
+    name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+  tags:
+    - docker
+  script:
+    - pwsh -command 'Get-ChildItem "env:"'
+#    - pwsh -command './010_update_version.ps1'
+#  artifacts:
+#    reports:
+#      dotenv: build.env
