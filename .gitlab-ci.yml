@@ -9,6 +9,10 @@ stages:
 services:
   - docker:26.1.1-dind
 
+# Instead of updating gitlab variables here, I can probably create a "version" branch
+# with files for the develop version and release version.  I can use a docker run
+# command to have a git docker image download that branch, increment its version number, 
+# and push the change.
 get-version-number-job:
   stage: .pre
   image:
