@@ -1,10 +1,12 @@
 # Purpose: update the latest version number
-$branch_label= $env:CI_COMMIT_BRANCH -replace "\W","_" # replace non-word characters with "_"
+$branch_label= $env:BRANCH_LABEL
 $version_branch = 'version_dev'
 $project_name = $env:CI_PROJECT_NAME
 if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
+
+$version_file_name = "version-$branch_label.txt"
 
 # Set Headers
 $headers = @{

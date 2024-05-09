@@ -5,10 +5,12 @@ $project_name = $env:CI_PROJECT_NAME
 if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
+
+$version_file_name = "version-$branch_label.txt"
 # get version file
 Write-Output 'Getting version...'
 $method = 'GET'
-$uri = "https://api.github.com/repos/segesmac/$project_name/contents/version.txt?ref=$version_branch"
+$uri = "https://api.github.com/repos/segesmac/$project_name/contents/$version_file_name?ref=$version_branch"
 $headers = @{
     'Authorization' = "Bearer $env:GITHUB_PAT_WLL"
     'Accept' = 'application/vnd.github+json'
