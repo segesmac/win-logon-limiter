@@ -57,7 +57,6 @@ deploy-job:      # This job runs in the deploy stage.
   tags:
     - docker
   script:
-    - if [[ $GH_VERSION -eq $GH_VERSION_LATEST ]]; then echo "'$GH_VERSION' matches '$GH_VERSION_LATEST' - exiting..."; exit 0; else echo "Deploying version '$GH_VERSION' to dockerhub..."; fi
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$VERSION_NUMBER-$BRANCH_LABEL"
     - docker pull $DOCKER_IMAGE
@@ -67,6 +66,8 @@ deploy-job:      # This job runs in the deploy stage.
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
     - docker push $DOCKER_IMAGE_NEW:$VERSION_NUMBER
     - docker push $DOCKER_IMAGE_NEW:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "release.*"'
 
 
 
