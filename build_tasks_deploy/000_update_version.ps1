@@ -37,7 +37,7 @@ if ($env:VERSION_SHA -ne $null){
 $json_data = ConvertTo-Json $data
 
 $method = 'PUT'
-$uri = "https://api.github.com/repos/segesmac/$project_name/contents/version.txt"
+$uri = "https://api.github.com/repos/segesmac/$project_name/contents/$version_file_name"
 
 Write-Output "Running: Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -Form $data"
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -Body $json_data
