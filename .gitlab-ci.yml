@@ -1,18 +1,15 @@
 image: docker:26.1.1
 
 stages:
-  - test
+#  - test
   - build
-  - inttest
+#  - inttest
   - deploy
 
 services:
   - docker:26.1.1-dind
 
-# Instead of updating gitlab variables here, I can probably create a "version" branch
-# with files for the develop version and release version.  I can use a docker run
-# command to have a git docker image download that branch, increment its version number, 
-# and push the change.
+# Created version branch, and can actually access it through GitHub's API - no need for using git
 get-version-number-job:
   stage: .pre
   image:
@@ -21,7 +18,34 @@ get-version-number-job:
     - docker
   script:
     - pwsh -command 'Get-ChildItem "env:"'
-#    - pwsh -command './010_update_version.ps1'
-#  artifacts:
-#    reports:
-#      dotenv: build.env
+    - pwsh -command './build_tasks_pre/000_get_version.ps1'
+  artifacts:
+    reports:
+      dotenv: build.env
+
+#unit-test-job:
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  tags:
+    - docker
+  script:
+    - env
+    - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
+    - echo "Building version number '$VERSION_NUMBER-$BRANCH_LABEL'"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
+    - cd webobjects
+    - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL .
+    - docker push $DOCKER_IMAGE --all-tags
+
+update-version-number-job:
+  stage: deploy
+  image:
+    name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+  tags:
+    - docker
+  script:
+    - pwsh -command 'Get-ChildItem "env:"'
+    - pwsh -command './build_tasks_deploy/000_update_version.ps1'
