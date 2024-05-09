@@ -7,6 +7,7 @@ if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
 # get version file
+Write-Output 'Getting version...'
 $method = 'GET'
 $uri = "https://api.github.com/repos/segesmac/win-logon-limiter/contents/version.txt?ref=$version_branch"
 $headers = @{
@@ -22,6 +23,7 @@ if ($result.name -ne $null){
 }
 
 # get version stub file
+Write-Output 'Getting version stub...'
 $build_version_stub = $env:BUILD_VERSION_STUB
 if ($build_version_stub -eq $null){
     $build_version_stub = "0.0.0"
@@ -33,6 +35,8 @@ $headers = @{
     'X-GitHub-Api-Version' = '2022-11-28'
 }
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -SkipHttpErrorCheck # SkipHttpErrorCheck will send the error response to $result instead of erroring out
+Write-Output "RESULT:"
+Write-Output $result
 if ($result.name -ne $null){
     $decode = [System.Convert]::FromBase64String($result.content)
     $build_version_stub = [System.Text.Encoding]::UTF8.GetString($decode)
@@ -52,9 +56,10 @@ if ($version_number -eq $null){
     # Get the version number base
     $m = $version_number | Select-String -Pattern $pattern
     $version_base = $m.Matches[0].Value
-    Write-Output "Version number is currently set to $version_number"
+    Write-Output "Version number is currently set to $version_number and base is set to $version_base"
 }
 
+Write-Output "Version_base: $version_base`nBuild_version_stub: $build_version_stub"
 if ($version_base.StartsWith($build_version_stub)){
     # Increment the build number
     Write-Output 'Incrementing build number...'
