@@ -17,6 +17,8 @@ $headers = @{
     'X-GitHub-Api-Version' = '2022-11-28'
 }
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -SkipHttpErrorCheck # SkipHttpErrorCheck will send the error response to $result instead of erroring out
+Write-Output "RESULT_VERSION:"
+Write-Output $result
 $version_number = $null
 if ($result.name -ne $null){
     $decode = [System.Convert]::FromBase64String($result.content)
