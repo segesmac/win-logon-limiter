@@ -2,14 +2,13 @@
 $branch_label= $env:CI_COMMIT_BRANCH -replace "\W","_" # replace non-word characters with "_"
 $version_branch = 'version_dev'
 $project_name = $env:CI_PROJECT_NAME
-$temp_path = "/tmp/$project_name"
 if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
 # get version file
 Write-Output 'Getting version...'
 $method = 'GET'
-$uri = "https://api.github.com/repos/segesmac/win-logon-limiter/contents/version.txt?ref=$version_branch"
+$uri = "https://api.github.com/repos/segesmac/$project_name/contents/version.txt?ref=$version_branch"
 $headers = @{
     'Authorization' = "Bearer $env:GITHUB_PAT_WLL"
     'Accept' = 'application/vnd.github+json'
@@ -20,6 +19,7 @@ $version_number = $null
 if ($result.name -ne $null){
     $decode = [System.Convert]::FromBase64String($result.content)
     $version_number = [System.Text.Encoding]::UTF8.GetString($decode)
+    $version_number_sha = $result.sha
 }
 
 # get version stub file
@@ -28,7 +28,7 @@ $build_version_stub = $env:BUILD_VERSION_STUB
 if ($build_version_stub -eq $null){
     $build_version_stub = "0.0.0"
 }
-$uri = "https://api.github.com/repos/segesmac/win-logon-limiter/contents/version_stub.txt?ref=$version_branch"
+$uri = "https://api.github.com/repos/segesmac/$project_name/contents/version_stub.txt?ref=$version_branch"
 $headers = @{
     'Authorization' = "Bearer $env:GITHUB_PAT_WLL"
     'Accept' = 'application/vnd.github+json'
@@ -78,4 +78,5 @@ Write-Output "Old version number: '$version_number' - New version number: '$new_
 # Setting the environment variables so that subsequent tasks will have the updated number
 "BRANCH_LABEL=$branch_label" | Out-File "build.env" -Encoding utf8 -Append
 "VERSION_NUMBER=$new_version_number" | Out-File "build.env" -Encoding utf8 -Append
+"VERSION_SHA=$version_number_sha" | Out-File "build.env" -Encoding utf8 -Append
 Write-Output "Done!"
