@@ -19,13 +19,21 @@ $headers = @{
 $Bytes = [System.Text.Encoding]::UTF8.GetBytes($env:VERSION_NUMBER)
 $version_number_base64 = [Convert]::ToBase64String($Bytes)
 
+
 $data = @{
     message = "Updating version number to $env:VERSION_NUMBER";
     content = $version_number_base64;
-    sha = $env:VERSION_SHA;
     branch = $version_branch;
 };
-
+# If this is true, we should be updating an existing file
+if ($env:VERSION_SHA -ne $null){
+    $data = @{
+        message = "Updating version number to $env:VERSION_NUMBER";
+        content = $version_number_base64;
+        sha = $env:VERSION_SHA;
+        branch = $version_branch;
+    };
+}
 $json_data = ConvertTo-Json $data
 
 $method = 'PUT'

@@ -61,7 +61,8 @@ if ($version_number -eq $null){
     Write-Output "Version number is currently set to $version_number and base is set to $version_base"
 }
 
-Write-Output "Version_base: $version_base`nBuild_version_stub: $build_version_stub"
+Write-Output "Version_base: $version_base"
+Write-Output "Build_version_stub: $build_version_stub"
 if ($version_base.StartsWith($build_version_stub)){
     # Increment the build number
     Write-Output 'Incrementing build number...'
@@ -80,5 +81,7 @@ Write-Output "Old version number: '$version_number' - New version number: '$new_
 # Setting the environment variables so that subsequent tasks will have the updated number
 "BRANCH_LABEL=$branch_label" | Out-File "build.env" -Encoding utf8 -Append
 "VERSION_NUMBER=$new_version_number" | Out-File "build.env" -Encoding utf8 -Append
-"VERSION_SHA=$version_number_sha" | Out-File "build.env" -Encoding utf8 -Append
+if ($version_number_sha -ne $null){
+    "VERSION_SHA=$version_number_sha" | Out-File "build.env" -Encoding utf8 -Append
+}
 Write-Output "Done!"
