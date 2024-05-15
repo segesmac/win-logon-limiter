@@ -121,7 +121,11 @@ async function getTable(datastring_prev) {
         $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
       }
     } else {
-        $("#timetable").html(data.status);
+        if (data.status_message.startsWith("User  doesn't exist!"){
+            $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
+        } else {
+            $("#timetable").html("Error: "+data.status_message);
+        }
     }
     });
     console.log("Sleeping 10 seconds...");
