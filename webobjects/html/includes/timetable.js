@@ -120,6 +120,8 @@ async function getTable(datastring_prev) {
       } else {
         $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
       }
+    } else {
+        $("#timetable").html(data.status);
     }
     });
     console.log("Sleeping 10 seconds...");
