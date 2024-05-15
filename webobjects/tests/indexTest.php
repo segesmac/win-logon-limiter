@@ -12,7 +12,21 @@ class IndexTest extends PHPUnit\Framework\TestCase
     $output = ob_get_clean();
 
     // Assert that the output is "Hello, Docker!"
-    $this->assertEquals("Hello, Docker!", $output);
+    $this->assertEquals(<<<'EOD'
+<script src="includes/jquery.min.js" />
+<link rel="stylesheet" href="includes/style.css" />
+
+</head>
+<body>
+<!--Your candidate is: <h1 id=list>-</h1> Make the locals proud.
+<h2 id=list2>-</h2> So-so-->
+<div id="timetable">No data received.</div>
+<div id="internetstatus">No data received.</div>
+<script src="includes/timetable.js" />
+</body>
+
+</html>
+EOD;, $output);
  }
 }
 ?>
