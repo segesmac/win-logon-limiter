@@ -37,7 +37,7 @@
    #}
    #phpinfo(32);
 ?>
-<script src="includes/jquery.min.js" />
+<script src="includes/jquery.min.js"></script>
 <link rel="stylesheet" href="includes/style.css" />
 
 </head>
@@ -46,7 +46,7 @@
 <h2 id=list2>-</h2> So-so-->
 <div id="timetable">No data received.</div>
 <div id="internetstatus">No data received.</div>
-<script src="includes/timetable.js" />
+<script src="includes/timetable.js"></script>
 </body>
 
 </html>
