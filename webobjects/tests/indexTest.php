@@ -12,7 +12,7 @@ class IndexTest extends PHPUnit\Framework\TestCase
     $output = ob_get_clean();
 
     // Assert that the output is "Hello, Docker!"
-    $this->assertEquals(<<<'EOD'
+    $content = <<<'EOD'
 <script src="includes/jquery.min.js" />
 <link rel="stylesheet" href="includes/style.css" />
 
@@ -26,7 +26,8 @@ class IndexTest extends PHPUnit\Framework\TestCase
 </body>
 
 </html>
-EOD, $output);
+EOD;
+    $this->assertEquals($content, $output);
  }
 }
 ?>
