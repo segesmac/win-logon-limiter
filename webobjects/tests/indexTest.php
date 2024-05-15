@@ -2,6 +2,7 @@
 
 require_once '/app/html/index.php';
 
+#[PHPUnit\Framework\Attributes\CoversNothing]
 class IndexTest extends PHPUnit\Framework\TestCase
 {
  public function testOutput()
@@ -13,6 +14,8 @@ class IndexTest extends PHPUnit\Framework\TestCase
 
     // Assert that the output is "Hello, Docker!"
     $content = <<<'EOD'
+<html>
+<head>
 <script src="includes/jquery.min.js" />
 <link rel="stylesheet" href="includes/style.css" />
 
@@ -26,6 +29,7 @@ class IndexTest extends PHPUnit\Framework\TestCase
 </body>
 
 </html>
+
 EOD;
     $this->assertEquals($content, $output);
  }
