@@ -18,6 +18,6 @@ services:
 
 
 # 
-# docker-compose -f docker_compose.yml run composer require --dev phpunit/phpunit
-# docker-compose -f docker_compose.yml run phpunit --generate-configuration
-# docker-compose -f docker_compose.yml run phpunit --colors=never --log-junit phpunit-index-report.xml tests
+# docker-compose -f docker-compose.yml run --rm composer require --dev phpunit/phpunit
+# docker-compose -f docker-compose.yml run --rm phpunit --generate-configuration
+# docker-compose -f docker-compose.yml run --rm phpunit --colors=never --log-junit phpunit-index-report.xml tests

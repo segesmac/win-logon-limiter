@@ -51,4 +51,4 @@ fi
 echo "$DB_PASSWD" > db_password.txt
 echo "$DB_RT_PASSWD" > db_root_password.txt
 
-docker-compose -f docker_compose.yml up -d
+docker-compose -f docker-compose.yml up -d
