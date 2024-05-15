@@ -16,6 +16,7 @@ $headers = @{
     'Accept' = 'application/vnd.github+json'
     'X-GitHub-Api-Version' = '2022-11-28'
 }
+Write-Output "Using this URI: $uri"
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -SkipHttpErrorCheck # SkipHttpErrorCheck will send the error response to $result instead of erroring out
 Write-Output "RESULT_VERSION:"
 Write-Output $result
