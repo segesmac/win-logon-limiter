@@ -26,7 +26,7 @@ class IndexTest extends PHPUnit\Framework\TestCase
 </body>
 
 </html>
-EOD;, $output);
+EOD, $output);
  }
 }
 ?>
