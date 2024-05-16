@@ -30,14 +30,10 @@ unit-test-job:
   script:
     - cd webobjects/phpunit
     - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
-    - echo $PWD
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "ls /app/phpunit"
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "echo $PWD"
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "ls /app/phpunit/tests"
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "vendor/bin/phpunit --colors=never --log-junit phpunit-report.xml /app/phpunit/tests/indexTest.php"
+    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/tests
   artifacts:
     reports:
-      junit: phpunit-report.xml
+      junit: webobjects/phpunit/phpunit-report.xml
   needs: []
   
 
