@@ -53,6 +53,9 @@ build-job:
     - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL .
     - docker push $DOCKER_IMAGE --all-tags
   needs: ["get-version-number-job"]
+  artifacts:
+    reports:
+      dotenv: build.env
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
 int-test-job-linux:      # This job runs integration testing for the linux portion of this
@@ -61,6 +64,7 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
     - docker
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
     - export DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$VERSION_NUMBER-$BRANCH_LABEL"
     - echo "DOCKER_IMAGE=$DOCKER_IMAGE"
     - docker pull "$DOCKER_IMAGE"
