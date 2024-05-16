@@ -68,7 +68,7 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
     - cd deployment
     - ls
     - echo $PWD
-    - ./setup.sh
+    - $PWD/setup.sh
     - cd ../webobjects/phpunit
     - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
     - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/inttests
