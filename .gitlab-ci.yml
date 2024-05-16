@@ -34,7 +34,7 @@ unit-test-job:
     - docker-compose -f docker-compose-tests.yml run --rm phpunit -c ls
     - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "echo $PWD"
     - docker-compose -f docker-compose-tests.yml run --rm phpunit -c ls
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "phpunit --colors=never --log-junit phpunit-report.xml phptest/tests/"
+    - docker-compose -f docker-compose-tests.yml run --rm phpunit -c "vendor/bin/phpunit --colors=never --log-junit phpunit-report.xml /app/webobjects/phptest/tests/"
   artifacts:
     reports:
       junit: phpunit-report.xml
