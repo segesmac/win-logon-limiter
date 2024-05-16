@@ -18,6 +18,8 @@ services:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
      secrets:
        - db_password
+     networks:
+       - network1
 
 networks:
   network1: # this network is the default name of the network created in the deployment folder docker-compose.yml file
