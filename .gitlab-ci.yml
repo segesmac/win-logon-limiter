@@ -51,7 +51,7 @@ build-job:
     - cd webobjects
     - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL .
     - docker push $DOCKER_IMAGE --all-tags
-  needs: [".pre"]
+  needs: ["get-version-number-job"]
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
 
