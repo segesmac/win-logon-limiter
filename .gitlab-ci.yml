@@ -1,7 +1,7 @@
 image: docker:26.1.1
 
 stages:
-#  - test
+  - test
   - build
 #  - inttest
   - deploy
@@ -23,7 +23,18 @@ get-version-number-job:
     reports:
       dotenv: build.env
 
-#unit-test-job:
+unit-test-job:
+  stage: test
+  tags:
+    - docker
+  script:
+    - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
+    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunits/tests
+  artifacts:
+    reports:
+      junit: phpunit-report.xml
+  needs: []
+  
 
 build-job:
   stage: build
