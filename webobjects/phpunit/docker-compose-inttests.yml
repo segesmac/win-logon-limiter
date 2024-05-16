@@ -13,7 +13,6 @@ services:
      volumes:
        - ../:/app
      working_dir: /app
-     entrypoint: vendor/bin/phpunit
      environment:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
      secrets:
