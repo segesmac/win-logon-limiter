@@ -22,7 +22,7 @@ services:
      depends_on:
        wlldb:
          condition: service_healthy
-     image: win-logon-limiter:latest
+     image: ${DOCKER_IMAGE:-win-logon-limiter:latest}
      ports:
        - "80:80"
      environment:

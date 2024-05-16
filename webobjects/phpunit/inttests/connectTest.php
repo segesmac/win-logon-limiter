@@ -1,6 +1,6 @@
 <?php
 
-require_once '/app/html/api/connect.php';
+require_once '/var/www/html/api/connect.php';
 
 #[PHPUnit\Framework\Attributes\CoversNothing]
 class IndexTest extends PHPUnit\Framework\TestCase
@@ -9,7 +9,7 @@ class IndexTest extends PHPUnit\Framework\TestCase
  {
     // Capture the output of connect.php
     ob_start();
-    include '/app/html/api/connect.php';
+    include '/var/www/html/api/connect.php';
     $output = ob_get_clean();
 
     // Assert that the output starts with Connection failed:, since there's no db to connect to
