@@ -3,7 +3,7 @@
 require_once '/var/www/html/api/connect.php';
 
 #[PHPUnit\Framework\Attributes\CoversNothing]
-class IndexTest extends PHPUnit\Framework\TestCase
+class ConnectTest extends PHPUnit\Framework\TestCase
 {
  public function testOutput()
  {
