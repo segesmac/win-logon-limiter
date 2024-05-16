@@ -19,9 +19,15 @@ services:
      secrets:
        - db_password
 
+networks:
+  network1: # this network is the default name of the network created in the deployment folder docker-compose.yml file
+    name: deployment_default
+    external: true
+
 secrets:
    db_password:
      file: db_password.txt
+
 
 
 # docker-compose -f docker_compose.yml up -d
