@@ -28,6 +28,7 @@ unit-test-job:
   tags:
     - docker
   script:
+    - cd phpunit
     - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
     - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunits/tests
   artifacts:
