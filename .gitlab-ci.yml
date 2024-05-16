@@ -32,7 +32,7 @@ unit-test-job:
     - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
     - echo $PWD
     - ls
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunits/tests
+    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml tests
   artifacts:
     reports:
       junit: phpunit-report.xml
