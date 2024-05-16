@@ -1,0 +1,43 @@
+services:
+   wlldb:
+     image: mariadb:latest
+     volumes:
+       - wll_db_data:/var/lib/mysql
+     environment:
+       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+       MYSQL_DATABASE: winlogonlimiter
+       MYSQL_USER: timeuser
+       MYSQL_PASSWORD_FILE: /run/secrets/db_password
+     secrets:
+       - db_root_password
+       - db_password
+     healthcheck:
+       #test: mysql -uroot -p$$(< /run/secrets/db_root_password) --database=winlogonlimiter -e "SHOW TABLES;" || exit 1
+       test:  ["CMD", "/usr/local/bin/healthcheck.sh", "--su-mysql", "--connect",  "--innodb_initialized"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+
+   wllweb:
+     depends_on:
+       wlldb:
+         condition: service_healthy
+     image: ${DOCKER_IMAGE}
+     ports:
+       - "80:80"
+     environment:
+       WLL_DB_PASSWORD_FILE: /run/secrets/db_password
+     secrets:
+       - db_password
+
+
+secrets:
+   db_password:
+     file: db_password.txt
+   db_root_password:
+     file: db_root_password.txt
+
+volumes:
+    wll_db_data:
+
+# docker-compose -f docker_compose.yml up -d

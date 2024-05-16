@@ -3,7 +3,7 @@ image: docker:26.1.1
 stages:
   - test
   - build
-#  - inttest
+  - inttest
   - deploy
 
 services:
@@ -54,6 +54,22 @@ build-job:
   needs: ["get-version-number-job"]
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
+int-test-job-linux:      # This job runs integration testing for the linux portion of this
+  stage: inttest
+  tags:
+    - docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$VERSION_NUMBER-$BRANCH_LABEL"
+    - docker pull $DOCKER_IMAGE
+    - cd webobjects/phpunit
+    - ./setup.sh
+    - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
+    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/inttests
+  artifacts:
+    reports:
+      junit: webobjects/phpunit-report.xml
+  needs: ["build-job"]
 
 update-version-number-job:
   stage: deploy
