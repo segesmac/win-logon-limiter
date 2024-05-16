@@ -69,8 +69,8 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
     - ls -al
     - ./setup.sh
     - cd ../webobjects/phpunit
-    - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
-    - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/inttests
+    - docker-compose -f docker-compose-inttests.yml run --rm composer require --dev phpunit/phpunit
+    - docker-compose -f docker-compose-inttests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/inttests
   artifacts:
     reports:
       junit: webobjects/phpunit-report.xml
