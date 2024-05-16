@@ -33,7 +33,7 @@ unit-test-job:
     - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/tests
   artifacts:
     reports:
-      junit: webobjects/phpunit/phpunit-report.xml
+      junit: webobjects/phpunit-report.xml
   needs: []
   
 
