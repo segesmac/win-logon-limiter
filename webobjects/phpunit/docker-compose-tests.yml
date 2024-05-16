@@ -13,7 +13,7 @@ services:
      volumes:
        - ../:/app
      working_dir: /app
-     entrypoint: vendor/bin/phpunit
+     entrypoint: /bin/bash
 
 
 
