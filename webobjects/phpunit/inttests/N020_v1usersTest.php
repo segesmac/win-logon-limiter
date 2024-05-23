@@ -3,7 +3,7 @@
 require_once '/var/www/html/api/v1/users.php';
 
 #[PHPUnit\Framework\Attributes\CoversNothing]
-class V1UsersTest extends PHPUnit\Framework\TestCase
+class N020_v1usersTest extends PHPUnit\Framework\TestCase
 {
     public function testOutput()
     {
