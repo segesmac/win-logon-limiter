@@ -17,4 +17,3 @@ class IndexTest extends PHPUnit\Framework\TestCase
     $this->assertStringEndsWith("</html>", trim($output));
  }
 }
-?>
