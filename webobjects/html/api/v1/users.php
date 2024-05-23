@@ -1,7 +1,6 @@
 <?php
-
+include("../connect.php");
 function get_users($username = ""){
-	include("../connect.php");
 	global $conn;
 	$get_all=false;
 	if ($username != ""){
@@ -57,7 +56,6 @@ function get_users($username = ""){
 function insert_user( $username = "" # jdoe
     , $timelimit = -1   # -1 or 60
 ){
-	include("../connect.php");
 	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])){
@@ -123,7 +121,6 @@ function update_user( $username = ""
 	, $loginstatus = null
 	, $bonusminutes = null
 ){
-	include("../connect.php");
 	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
@@ -255,7 +252,6 @@ function update_user( $username = ""
 }
 
 function delete_user($username = "") {
-	include("../connect.php");
 	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
@@ -332,6 +328,7 @@ if (isset($request_method)){
 		default:
 			// Invalid Request Method
 			header("HTTP/1.0 405 Method Not Allowed");
+			mysqli_close($conn);
 			break;
 	}
 }
