@@ -54,7 +54,7 @@ function get_users($username = ""){
 }
 
 function insert_user( $username = "" # jdoe
-    , $timelimit = doubleval("-1")   # -1 or 60
+    , $timelimit = -1   # -1 or 60
 ){
 	include("../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
