@@ -292,7 +292,7 @@ function delete_user($username = "") {
 	mysqli_close($conn);
 }
 $request_method=$_SERVER["REQUEST_METHOD"];
-	if (isset($request_method)){
+if (isset($request_method)){
 	switch($request_method){
 		case 'GET':
 			// retrive users
