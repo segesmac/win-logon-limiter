@@ -2,6 +2,7 @@
 
 function get_users($username = ""){
 	include("../connect.php");
+	global $conn;
 	$get_all=false;
 	if ($username != ""){
 		$stmt = mysqli_stmt_init($conn);
@@ -57,6 +58,7 @@ function insert_user( $username = "" # jdoe
     , $timelimit = -1   # -1 or 60
 ){
 	include("../connect.php");
+	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])){
 	    $username = strval($data["username"]);
@@ -122,6 +124,7 @@ function update_user( $username = ""
 	, $bonusminutes = null
 ){
 	include("../connect.php");
+	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
 		$username = strval($data["username"]);
@@ -253,6 +256,7 @@ function update_user( $username = ""
 
 function delete_user($username = "") {
 	include("../connect.php");
+	global $conn;
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
 		$username = strval($data["username"]);
