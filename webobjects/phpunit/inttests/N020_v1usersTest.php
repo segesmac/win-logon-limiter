@@ -14,7 +14,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $output = ob_get_clean();
         echo $output;
         $output_object = json_decode($output);
-        $this->assertStringEquals("No users exist!", ($output_object["status_message"]));
+        $this->assertEquals("No users exist!", ($output_object["status_message"]));
         $this->assertEquals(-1, ($output_object["status"]));
     }
 }
