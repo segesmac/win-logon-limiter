@@ -56,8 +56,39 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $output_object = json_decode($output);
         $this->assertEquals("$test_username found successfully!", ($output_object->{'status_message'}));
         $this->assertEquals(1, ($output_object->{'status'}));
+        #var_dump($output_object->{'payload'}); 
+        $this->assertEquals(1, ($output_object->{'payload'}["usertimetableid"]));
+        /*["usertimetableid"]=>
+        int(1)
+        ["lastrowupdate"]=>
+        NULL
+        ["username"]=>
+        string(4) "jdoe"
+        ["isloggedon"]=>
+        int(0)
+        ["lastlogon"]=>
+        NULL
+        ["lastheartbeat"]=>
+        NULL
+        ["timelimitminutes"]=>
+        string(5) "-1.00"
+        ["timeleftminutes"]=>
+        string(5) "-1.00"
+        ["bonustimeminutes"]=>
+        string(4) "0.00"
+        ["computername"]=>
+        NULL
+        ["bonuscounters"]=>
+        string(4) "0.00"*/
+
+        // Test get_user without specifying user
+        ob_start();
+        get_users($test_username);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("Found users successfully!", ($output_object->{'status_message'}));
+        $this->assertEquals(1, ($output_object->{'status'}));
         var_dump($output_object->{'payload'}); 
-        #$this->assertEquals(1, ($output_object->{'payload'}));
 
     }
 }
