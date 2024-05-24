@@ -40,5 +40,24 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $this->assertEquals("User $test_username already exists.", ($output_object->{'status_message'}));
         $this->assertEquals(1, ($output_object->{'status'}));
 
+        // Test insertion of another new user
+        ob_start();
+        $test_username2 = 'adoe';
+        insert_user($test_username2);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("User $test_username2 inserted successfully!", ($output_object->{'status_message'}));
+        $this->assertEquals(1, ($output_object->{'status'}));
+
+        // Test get_user with specific username that exists
+        ob_start();
+        get_users($test_username);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("$test_username found successfully!", ($output_object->{'status_message'}));
+        $this->assertEquals(1, ($output_object->{'status'}));
+        var_dump($output_object->{'payload'}); 
+        #$this->assertEquals(1, ($output_object->{'payload'}));
+
     }
 }
