@@ -1,10 +1,10 @@
 <?php
-
+require(__DIR__ . "/../connect.php");
 function update_heartbeat( $username = "" # jdoe
         , $loginstatus = "" # 1
         , $computername = "NONE" # DESKTOP-JDOE
     ) {
-    include("../connect.php");
+    global $conn;
     $data = json_decode(file_get_contents('php://input'), true);
     if (!empty(strval($data["username"]))) {
         $username = strval($data["username"]);
@@ -107,6 +107,7 @@ if (isset($request_method)){
         default:
             // Invalid Request Method
             header("HTTP/1.0 405 Method Not Allowed");
+            mysqli_close($conn);
             break;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-include("../connect.php");
+require(__DIR__ . "/../connect.php");
 function get_users($username = ""){
 	global $conn;
 	$get_all=false;
