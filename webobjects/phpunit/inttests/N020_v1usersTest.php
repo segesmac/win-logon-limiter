@@ -86,7 +86,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $this->assertEquals("0.00", ($output_object->{'payload'}[0]->{"bonustimeminutes"}));
         $this->assertEquals(null, ($output_object->{'payload'}[0]->{"computername"}));
         $this->assertEquals("0.00", ($output_object->{'payload'}[0]->{"bonuscounters"}));
-        $this->assertEquals('1', ($output_object->{'payload'}[1]->{"usertimetableid"}));
+        $this->assertEquals('2', ($output_object->{'payload'}[1]->{"usertimetableid"}));
         $this->assertEquals(null, ($output_object->{'payload'}[1]->{"lastrowupdate"}));
         $this->assertEquals($test_username2, ($output_object->{'payload'}[1]->{"username"}));
         $this->assertEquals('0', ($output_object->{'payload'}[1]->{"isloggedon"}));
