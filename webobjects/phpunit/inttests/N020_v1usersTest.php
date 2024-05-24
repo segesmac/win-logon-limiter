@@ -12,9 +12,9 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         require_once '/var/www/html/api/v1/users.php';
         get_users();
         $output = ob_get_clean();
-        echo "$output\nDONE!";
+        #echo "$output\nDONE!";
         $output_object = json_decode($output);
-        $this->assertEquals("No users exist!", ($output_object["status_message"]));
-        $this->assertEquals(-1, ($output_object["status"]));
+        $this->assertEquals("No users exist!", ($output_object->{'status_message'}));
+        $this->assertEquals(-1, ($output_object->{'status'}));
     }
 }
