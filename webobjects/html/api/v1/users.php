@@ -1,7 +1,7 @@
 <?php
-require(__DIR__ . "/../connect.php");
+
 function get_users($username = ""){
-	global $conn;
+	require(__DIR__ . "/../connect.php");
 	$get_all=false;
 	if ($username != ""){
 		$stmt = mysqli_stmt_init($conn);
@@ -57,7 +57,7 @@ function get_users($username = ""){
 function insert_user( $username = "" # jdoe
     , $timelimit = -1   # -1 or 60
 ){
-	global $conn;
+	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])){
 	    $username = strval($data["username"]);
@@ -123,7 +123,7 @@ function update_user( $username = ""
 	, $loginstatus = null
 	, $bonusminutes = null
 ){
-	global $conn;
+	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
 		$username = strval($data["username"]);
@@ -255,7 +255,7 @@ function update_user( $username = ""
 }
 
 function delete_user($username = "") {
-	global $conn;
+	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
 	if (!empty($data["username"])) {
 		$username = strval($data["username"]);
