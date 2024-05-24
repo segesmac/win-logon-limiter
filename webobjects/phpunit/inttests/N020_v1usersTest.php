@@ -75,7 +75,28 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $output_object = json_decode($output);
         $this->assertEquals("Found users successfully!", ($output_object->{'status_message'}));
         $this->assertEquals(1, ($output_object->{'status'}));
-        var_dump($output_object->{'payload'}); 
+        $this->assertEquals('1', ($output_object->{'payload'}[0]->{"usertimetableid"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[0]->{"lastrowupdate"}));
+        $this->assertEquals($test_username, ($output_object->{'payload'}[0]->{"username"}));
+        $this->assertEquals('0', ($output_object->{'payload'}[0]->{"isloggedon"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[0]->{"lastlogon"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[0]->{"lastheartbeat"}));
+        $this->assertEquals("-1.00", ($output_object->{'payload'}[0]->{"timelimitminutes"}));
+        $this->assertEquals("-1.00", ($output_object->{'payload'}[0]->{"timeleftminutes"}));
+        $this->assertEquals("0.00", ($output_object->{'payload'}[0]->{"bonustimeminutes"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[0]->{"computername"}));
+        $this->assertEquals("0.00", ($output_object->{'payload'}[0]->{"bonuscounters"}));
+        $this->assertEquals('1', ($output_object->{'payload'}[1]->{"usertimetableid"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[1]->{"lastrowupdate"}));
+        $this->assertEquals($test_username2, ($output_object->{'payload'}[1]->{"username"}));
+        $this->assertEquals('0', ($output_object->{'payload'}[1]->{"isloggedon"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[1]->{"lastlogon"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[1]->{"lastheartbeat"}));
+        $this->assertEquals("-1.00", ($output_object->{'payload'}[1]->{"timelimitminutes"}));
+        $this->assertEquals("-1.00", ($output_object->{'payload'}[1]->{"timeleftminutes"}));
+        $this->assertEquals("0.00", ($output_object->{'payload'}[1]->{"bonustimeminutes"}));
+        $this->assertEquals(null, ($output_object->{'payload'}[1]->{"computername"}));
+        $this->assertEquals("0.00", ($output_object->{'payload'}[1]->{"bonuscounters"}));
 
     }
 }
