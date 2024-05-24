@@ -51,6 +51,7 @@ function get_users($username = ""){
 		echo json_encode($return_response);
 	}
 	mysqli_close($conn);
+    echo "Closed conn! 1";
 }
 
 function insert_user( $username = "" # jdoe
@@ -113,6 +114,7 @@ function insert_user( $username = "" # jdoe
 	header('Content-Type: application/json');
 	echo json_encode($response);
 	mysqli_close($conn);
+    echo "Closed conn! 2";
 }
 
 function update_user( $username = ""
@@ -249,6 +251,7 @@ function update_user( $username = ""
 	header('Content-Type: application/json');
 	echo json_encode($return_response);
 	mysqli_close($conn);
+    echo "Closed conn! 3";
 }
 
 function delete_user($username = "") {
@@ -290,6 +293,7 @@ function delete_user($username = "") {
 	header('Content-Type: application/json');
 	echo json_encode($response);
 	mysqli_close($conn);
+    echo "Closed conn! 4";
 }
 $request_method=$_SERVER["REQUEST_METHOD"];
 if (isset($request_method)){
@@ -330,6 +334,7 @@ if (isset($request_method)){
 			// Invalid Request Method
 			header("HTTP/1.0 405 Method Not Allowed");
 			mysqli_close($conn);
+            echo "Closed conn! 5";
 			break;
 	}
 }

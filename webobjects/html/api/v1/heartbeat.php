@@ -91,6 +91,7 @@ function update_heartbeat( $username = "" # jdoe
     header('Content-Type: application/json');
     echo json_encode($return_response);
     mysqli_close($conn);
+    echo "Conn closed! 1";
 }
 
 $request_method=$_SERVER["REQUEST_METHOD"];
@@ -108,6 +109,7 @@ if (isset($request_method)){
             // Invalid Request Method
             header("HTTP/1.0 405 Method Not Allowed");
             mysqli_close($conn);
+            echo "Conn closed! 2";
             break;
     }
 }
