@@ -63,7 +63,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(null, ($output_object->{'payload'}->{"lastlogon"}));
         $this->assertEquals(null, ($output_object->{'payload'}->{"lastheartbeat"}));
         $this->assertEquals("-1.00", ($output_object->{'payload'}->{"timelimitminutes"}));
-        $this->assertEquals("-1.00", ($output_object->{'payload'}->{"lastheartbeat"}));
+        $this->assertEquals("-1.00", ($output_object->{'payload'}->{"timeleftminutes"}));
         $this->assertEquals("0.00", ($output_object->{'payload'}->{"bonustimeminutes"}));
         $this->assertEquals(null, ($output_object->{'payload'}->{"computername"}));
         $this->assertEquals("0.00", ($output_object->{'payload'}->{"bonuscounters"}));
