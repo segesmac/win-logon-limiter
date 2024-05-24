@@ -1,6 +1,6 @@
 <?php
 
-require_once '/var/www/html/api/v1/users.php';
+
 
 #[PHPUnit\Framework\Attributes\CoversNothing]
 class N020_v1usersTest extends PHPUnit\Framework\TestCase
@@ -9,6 +9,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
     {
         // Testing get_users with empty user table
         ob_start();
+        require_once '/var/www/html/api/v1/users.php';
         get_users();
         $output = ob_get_clean();
         echo $output;
