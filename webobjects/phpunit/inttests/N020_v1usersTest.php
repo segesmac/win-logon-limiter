@@ -57,7 +57,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $this->assertEquals("$test_username found successfully!", ($output_object->{'status_message'}));
         $this->assertEquals(1, ($output_object->{'status'}));
         #var_dump($output_object->{'payload'}); 
-        $this->assertEquals(1, ($output_object->{'payload'}["usertimetableid"]));
+        $this->assertEquals(1, ($output_object->{'payload'}->{"usertimetableid"}));
         /*["usertimetableid"]=>
         int(1)
         ["lastrowupdate"]=>
