@@ -1,8 +1,6 @@
 <?php
 
-echo "Beginning testing!\n";
 require_once '/var/www/html/api/v1/users.php';
-echo "Required users.php \n";
 
 #[PHPUnit\Framework\Attributes\CoversNothing]
 class N020_v1usersTest extends PHPUnit\Framework\TestCase

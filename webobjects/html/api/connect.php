@@ -6,8 +6,6 @@ $servername = "wlldb";
 $username = "timeuser";
 $dbname = "winlogonlimiter";
 
-echo "Included connect.php successfully!\n";
-
 if (empty($password)){
     die ("You must include a password variable in the ../../password.php file.");
 }
