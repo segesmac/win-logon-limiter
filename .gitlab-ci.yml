@@ -1,19 +1,20 @@
-image: docker:26.1.1
+image: ${DOCKER_REGISTRY}docker:26.1.1
 
 stages:
   - test
   - build
   - inttest
   - deploy
-
+ 
 services:
-  - docker:26.1.1-dind
+  - ${DOCKER_REGISTRY}docker:26.1.1-dind
 
 # Created version branch, and can actually access it through GitHub's API - no need for using git
 get-version-number-job:
   stage: .pre
   image:
-    name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+    #name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
   tags:
     - docker
   script:
@@ -29,7 +30,7 @@ unit-test-job:
     - docker
   script:
     - cd webobjects/phpunit
-    - export DOCKER_IMAGE="php:bookworm"
+    - export DOCKER_IMAGE="${DOCKER_REGISTRY}php:bookworm"
     - docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
     - docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunit/tests
   artifacts:
@@ -79,7 +80,7 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
 update-version-number-job:
   stage: deploy
   image:
-    name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
   tags:
     - docker
   script:
