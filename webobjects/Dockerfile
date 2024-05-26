@@ -1,4 +1,5 @@
-FROM php:8.3.6-apache-bookworm as php-apache
+ARG DOCKER_REGISTRY=registry.segesman.us
+FROM ${DOCKER_REGISTRY}php:8.3.6-apache-bookworm as php-apache
 # Enable mysqli
 RUN docker-php-ext-install mysqli
 #RUN sed -i "s/;extension=mysqli/extension=mysqli/g" /usr/local/etc/php/php.ini-production

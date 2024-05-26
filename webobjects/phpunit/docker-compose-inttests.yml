@@ -1,6 +1,6 @@
 services:
    composer:
-     image: composer:latest
+     image: ${DOCKER_REGISTRY}composer:latest
      volumes:
       - ../:/app
      environment:

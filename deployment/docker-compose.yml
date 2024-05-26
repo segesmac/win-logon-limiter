@@ -1,6 +1,6 @@
 services:
    wlldb:
-     image: mariadb:latest
+     image: ${DOCKER_REGISTRY}mariadb:latest
      volumes:
        - wll_db_data:/var/lib/mysql
      environment:

@@ -7,7 +7,7 @@ stages:
   - deploy
  
 services:
-  - ${DOCKER_REGISTRY}docker:26.1.1-dind
+  - docker:26.1.1-dind
 
 # Created version branch, and can actually access it through GitHub's API - no need for using git
 get-version-number-job:
