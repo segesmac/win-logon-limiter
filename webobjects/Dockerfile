@@ -1,4 +1,4 @@
-ARG DOCKER_REGISTRY=registry.segesman.us
+ARG DOCKER_REGISTRY=registry.segesman.us/
 FROM ${DOCKER_REGISTRY}php:8.3.6-apache-bookworm as php-apache
 # Enable mysqli
 RUN docker-php-ext-install mysqli
