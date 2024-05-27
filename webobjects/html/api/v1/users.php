@@ -147,7 +147,7 @@ function update_user( $username = ""
 			'status' => 0,
 			'status_message' => "You must include a username!"
 		);
-		$return_response["loginstatus"] = $response;
+		$return_response = $response;
 	}
 
 	# Update login status
