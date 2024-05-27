@@ -98,5 +98,59 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $this->assertEquals(null, ($output_object->{'payload'}[1]->{"computername"}));
         $this->assertEquals("0.00", ($output_object->{'payload'}[1]->{"bonuscounters"}));
 
+        // Test update_user empty username
+        ob_start();
+        $empty_user = '';
+        update_user($empty_user, null, null, 1);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("You must include a username!", ($output_object->{'status_message'}));
+        $this->assertEquals(0, ($output_object->{'status'}));
+
+        // Test update_user update login status true
+        ob_start();
+        update_user($test_username, null, null, 1);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("User $test_username updated successfully!", ($output_object->{'loginstatus'}->{'status_message'}));
+        $this->assertEquals(1, ($output_object->{'loginstatus'}->{'status'}));
+
+        // Test update_user update login status false
+        ob_start();
+        update_user($test_username, null, null, 0);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("User $test_username updated successfully!", ($output_object->{'loginstatus'}->{'status_message'}));
+        $this->assertEquals(1, ($output_object->{'loginstatus'}->{'status'}));
+
+        // Test update_user update login status user doesn't exist
+        ob_start();
+        $nonexistant_user = 'idontexist';
+        update_user($nonexistant_user, null, null, 0);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("User $nonexistant_user doesn't exist!", ($output_object->{'loginstatus'}->{'status_message'}));
+        $this->assertEquals(0, ($output_object->{'loginstatus'}->{'status'}));
+        $this->assertEquals(0, ($output_object->{'bonusminutes'}->{'status'}));
+
+        // Test update_user set bonus minutes to some value
+        ob_start();
+        $test_bonusminutes = 30;
+        update_user($test_username, null, null, null, $test_bonusminutes);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("Set bonusminutes to $test_bonusminutes for $test_username successfully!", ($output_object->{'bonusminutes'}->{'status_message'}));
+        $this->assertEquals($test_bonusminutes, ($output_object->{'bonusminutes'}->{'status'}));
+
+        // Test update_user set bonus minutes to some value for username that doesn't exist
+        ob_start();
+        $test_bonusminutes = 30;
+        update_user($nonexistant_user, null, null, null, $test_bonusminutes);
+        $output = ob_get_clean();
+        $output_object = json_decode($output);
+        $this->assertEquals("User $nonexistant_user doesn't exist!", ($output_object->{'bonusminutes'}->{'status_message'}));
+        $this->assertEquals(0, ($output_object->{'bonusminutes'}->{'status'}));
+
+
     }
 }

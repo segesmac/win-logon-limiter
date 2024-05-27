@@ -140,6 +140,16 @@ function update_user( $username = ""
 	}
 	$return_response = array();
 
+
+    # Return status if username is null
+	if (empty($username)){
+		$response = array(
+			'status' => 0,
+			'status_message' => "You must include a username!"
+		);
+		$return_response["loginstatus"] = $response;
+	}
+
 	# Update login status
 	if (isset($loginstatus) && $username != ""){
 		$stmt = mysqli_stmt_init($conn);
