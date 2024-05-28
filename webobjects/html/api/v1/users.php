@@ -120,6 +120,8 @@ function update_user( $username = ""
 	, $bonusminutesadd = null
 	, $loginstatus = null
 	, $bonusminutes = null
+	, $timeleftminutes = null
+	, $timeleftminutesadd = null
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -137,6 +139,12 @@ function update_user( $username = ""
 	}
 	if (!empty($data["bonusminutes"])) {
 		$bonusminutes = $data["bonusminutes"];
+	}
+	if (!empty($data["timeleftminutes"])) {
+		$timeleftminutes = $data["timeleftminutes"];
+	}
+	if (!empty($data["timeleftminutesadd"])) {
+		$timeleftminutesadd = $data["timeleftminutesadd"];
 	}
 	$return_response = array();
 
@@ -227,11 +235,55 @@ function update_user( $username = ""
 				);
 			} else {
 				$response = array(
-					'status' => 1,
+					'status' => $bonusminutesadd,
 					'status_message' => "Added $bonusminutesadd bonus minute(s) to $username successfully!"
 				);
 			}
 			$return_response["bonusminutesadd"] = $response;
+		}
+	}
+	# Set regular minutes to some value
+	if (!empty($username) && isset($timeleftminutes)){
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 1, timeleftminutes = ? WHERE username = ?")){
+			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutes, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			mysqli_stmt_close($stmt);
+			if ($affected_rows == 0){
+				$response = array(
+					'status' => 0,
+					'status_message' => "User $username doesn't exist!"
+				);
+			} else {
+				$response = array(
+					'status' => $timeleftminutes,
+					'status_message' => "Set timeleftminutes to $timeleftminutes for $username successfully!"
+				);
+			}
+			$return_response["timeleftminutes"] = $response;
+		}
+	}
+	# Add minutes to the regular pool
+	if (!empty($username) && isset($timeleftminutesadd)){
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 2, timeleftminutes = timeleftminutes + ? WHERE username = ?")){
+			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutesadd, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			mysqli_stmt_close($stmt);
+			if ($affected_rows == 0){
+				$response = array(
+					'status' => 0,
+					'status_message' => "User $username doesn't exist!"
+				);
+			} else {
+				$response = array(
+					'status' => $timeleftminutesadd,
+					'status_message' => "Added $timeleftminutesadd timeleft minute(s) to $username successfully!"
+				);
+			}
+			$return_response["timeleftminutesadd"] = $response;
 		}
 	}
 	# Update the time limit to some value
