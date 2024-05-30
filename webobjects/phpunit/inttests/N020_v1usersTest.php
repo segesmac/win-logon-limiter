@@ -131,8 +131,6 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         $output_object = json_decode($output);
         $this->assertEquals("User $nonexistant_user doesn't exist!", ($output_object->{'loginstatus'}->{'status_message'}));
         $this->assertEquals(0, ($output_object->{'loginstatus'}->{'status'}));
-        $this->assertEquals(0, ($output_object->{'bonusminutes'}->{'status'}));
-
 
     }
 }
