@@ -126,7 +126,7 @@ class N020_v1usersTest extends PHPUnit\Framework\TestCase
         // Test update_user update login status user doesn't exist
         ob_start();
         $nonexistant_user = 'idontexist';
-        update_user($nonexistant_user, null, null, 0);
+        update_user($nonexistant_user, 0);
         $output = ob_get_clean();
         $output_object = json_decode($output);
         $this->assertEquals("User $nonexistant_user doesn't exist!", ($output_object->{'loginstatus'}->{'status_message'}));
