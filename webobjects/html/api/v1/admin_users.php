@@ -3,7 +3,7 @@
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
 
-function update_user( $username = ""
+function modify_user( $username = ""
     , $timelimit = null
 	, $bonusminutesadd = null
 	, $loginstatus = null
@@ -223,9 +223,9 @@ if (isset($request_method)){
 		case 'PUT':
 			if (!empty($_GET["username"])){
 				$username=strval($_GET["username"]);
-				update_user($username);
+				modify_user($username);
 			} else {
-				update_user();
+				modify_user();
 			}
 			break;
 		case 'DELETE':
