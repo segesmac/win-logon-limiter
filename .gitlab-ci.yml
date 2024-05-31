@@ -51,7 +51,7 @@ build-job:
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
     - cd webobjects
-    - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL .
+    - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL --platform linux/amd64,linux/arm64 .
     - docker push $DOCKER_IMAGE --all-tags
   needs: ["get-version-number-job"]
 
