@@ -39,7 +39,7 @@
 ?>
 <script src="includes/jquery.min.js"></script>
 <link rel="stylesheet" href="includes/style.css" />
-<a href="admin/"><div id="adminconsolebutton">Admin Login</div></a>
+
 </head>
 <body>
 <!--Your candidate is: <h1 id=list>-</h1> Make the locals proud.

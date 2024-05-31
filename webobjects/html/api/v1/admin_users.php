@@ -203,7 +203,7 @@ function delete_user($username = "") {
 }
 $request_method=$_SERVER["REQUEST_METHOD"];
 if (isset($request_method)){
-	echo "REQUEST_METHOD SET: $request_method";
+	#echo "REQUEST_METHOD SET: $request_method";
 	switch($request_method){
 		case 'GET':
 			// retrive users

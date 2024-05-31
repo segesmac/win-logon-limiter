@@ -4,6 +4,18 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 30px;
 }
+div#adminconsolebutton {
+  margin-left: auto;
+  margin-right: 5px;
+  padding: 5px;
+  border: 2px solid black;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  background-color: dimgrey;
+}
+div#adminconsolebutton:active {
+  background-color:darkcyan;
+}
 table, th, td {
   border: 2px solid;
   padding: 5px;
