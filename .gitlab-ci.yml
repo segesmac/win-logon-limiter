@@ -9,6 +9,8 @@ stages:
 services:
   - name: docker:26.1.1-dind
 
+# This variable is here purely to get around the fact that the docker:dind container is not set up for multi-platform builds
+# See https://github.com/docker-library/docker/issues/477
 variables:
   TEST_INTEGRATION_USE_SNAPSHOTTER: true
 
