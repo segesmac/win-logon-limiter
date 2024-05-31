@@ -8,12 +8,9 @@ stages:
 
 services:
   - name: docker:26.1.1-dind
-    alias: dind
 
 variables:
-  DOCKER_HOST: tcp://dind:2375/
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
 
 # Created version branch, and can actually access it through GitHub's API - no need for using git
 get-version-number-job:
