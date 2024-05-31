@@ -11,6 +11,7 @@ services:
 
 variables:
   DOCKER_DRIVER: overlay2
+  TEST_INTEGRATION_USE_SNAPSHOTTER: true
 
 # Created version branch, and can actually access it through GitHub's API - no need for using git
 get-version-number-job:
