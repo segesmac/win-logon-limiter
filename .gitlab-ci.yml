@@ -52,6 +52,7 @@ build-job:
     - env
     - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
     - echo "Building version number '$VERSION_NUMBER-$BRANCH_LABEL'"
+    - docker buildx ls
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
