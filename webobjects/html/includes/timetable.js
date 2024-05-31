@@ -59,7 +59,9 @@ async function getTable(datastring_prev) {
     data_to_parse = data.payload;
     internet_on = false;
     datastring = JSON.stringify(data);
-    if (data.status == 1 && datastring_prev != datastring){
+    if (data.status == 1 && datastring_prev == datastring){
+      // Do nothing
+    } else if (data.status == 1 && datastring_prev != datastring){
       console.log("Updating data");
       $.each( data_to_parse, function( key, val ) {
         var row_header = "";
