@@ -51,6 +51,9 @@ build-job:
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
     - cd webobjects
+    - >
+      echo '{ "features": {  "containerd-snapshotter": true } }' > /etc/docker/daemon.json
+    - systemctl restart docker
     - docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL --platform linux/amd64,linux/arm64 .
     - docker push $DOCKER_IMAGE --all-tags
   needs: ["get-version-number-job"]
@@ -104,6 +107,4 @@ deploy-job:      # This job runs in the deploy stage.
   needs: ["get-version-number-job","build-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "release.*"'
-
-
 
