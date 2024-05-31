@@ -59,9 +59,7 @@ async function getTable(datastring_prev) {
     data_to_parse = data.payload;
     internet_on = false;
     datastring = JSON.stringify(data);
-    if (data.status == 1 && datastring_prev == datastring){
-      // Do nothing
-    } else if (data.status == 1 && datastring_prev != datastring){
+    if (data.status == 1 && datastring_prev != datastring){
       console.log("Updating data");
       $.each( data_to_parse, function( key, val ) {
         var row_header = "";
@@ -122,7 +120,7 @@ async function getTable(datastring_prev) {
       } else {
         $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
       }
-    } else {
+    } else if (data.status < 1) {
         if (data.status_message.startsWith("No users exist!")){
             $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
         } else {
