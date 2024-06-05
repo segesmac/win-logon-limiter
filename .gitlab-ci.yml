@@ -92,8 +92,8 @@ manifest-job:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
-    - docker pull --all-tags --platform linux/arm64 $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
-    - docker pull --all-tags --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-amd64
+    - docker pull --all-tags --platform linux/arm64 $DOCKER_IMAGE
+    - docker pull --all-tags --platform linux/amd64 $DOCKER_IMAGE
     - docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker manifest push $DOCKER_IMAGE:$BRANCH_LABEL-latest
   needs: ["get-version-number-job","build-arm-job","build-job"]
