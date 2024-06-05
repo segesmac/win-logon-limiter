@@ -95,10 +95,10 @@ manifest-job:
     - DOCKER_IMAGE_ARM="$CI_REGISTRY_IMAGE/win-logon-limiter-arm"
     - docker pull --platform linux/arm64 $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8
     - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-amd64
+    - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-latest
+    - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER
     - docker tag $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8 $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
     - docker push $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
-    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER
-    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_IMAGE:$BRANCH_LABEL-latest
     - docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker manifest push $DOCKER_IMAGE:$BRANCH_LABEL-latest
   needs: ["get-version-number-job","build-arm-job","build-job"]
