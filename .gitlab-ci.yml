@@ -85,7 +85,7 @@ build-arm-job:
     - docker push $DOCKER_IMAGE --all-tags
   needs: ["get-version-number-job"]
 
-  manifest-job:
+manifest-job:
   stage: build
   tags:
     - docker
