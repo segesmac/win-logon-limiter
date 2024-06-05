@@ -72,7 +72,7 @@ build-arm-job:
     #- docker buildx ls
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
-    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter-arm"
     - cd webobjects
     #- docker build -t $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL -t $DOCKER_IMAGE:latest-$BRANCH_LABEL --platform linux/amd64 .
     #- docker push $DOCKER_IMAGE --all-tags
@@ -92,8 +92,11 @@ manifest-job:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
-    - docker pull --all-tags --platform linux/arm64 $DOCKER_IMAGE
+    - DOCKER_IMAGE_ARM="$CI_REGISTRY_IMAGE/win-logon-limiter-arm"
+    - docker pull --all-tags --platform linux/arm64 $DOCKER_IMAGE_ARM
     - docker pull --all-tags --platform linux/amd64 $DOCKER_IMAGE
+    - docker tag $DOCKER_IMAGE_ARM $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
+    - docker push $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
     - docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$VERSION_NUMBER-$BRANCH_LABEL --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker manifest push $DOCKER_IMAGE:$BRANCH_LABEL-latest
   needs: ["get-version-number-job","build-arm-job","build-job"]
