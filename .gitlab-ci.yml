@@ -135,6 +135,38 @@ update-version-number-job:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1'
 
+deploy-dev-job:
+  stage: deploy
+  tags:
+    - docker
+  image:
+    name: ${DOCKER_REGISTRY}ubuntu:latest
+  environment:
+    name: dev.timeleft.us
+    url: https://dev.timeleft.us/
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo 'SendEnv DB_PASSWD' > ~/.ssh/config
+    - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
+
+  script:
+    - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
+    - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
+    - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
+    - ssh segesmac@dev.timeleft.us '~/deployment/setup.sh'
+  needs: ["get-version-number-job","build-job","int-test-job-linux"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "feature/gl.*"'
+
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
   tags:

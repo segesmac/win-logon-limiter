@@ -15,6 +15,8 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         $output_object = json_decode($output);
         $this->assertEquals("You must include a username!", ($output_object->{'status_message'}));
         $this->assertEquals(0, ($output_object->{'status'}));
+
+        // Set variables
         $test_username = 'jdoe';
         $nonexistant_user = 'idontexist';
 
