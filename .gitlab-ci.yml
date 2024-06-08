@@ -164,7 +164,7 @@ deploy-dev-job:
     - ssh segesmac@dev.timeleft.us '~/deployment/setup.sh'
   needs: ["get-version-number-job","build-job","int-test-job-linux"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "feature\/gl.*"'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
@@ -182,5 +182,5 @@ deploy-job:      # This job runs in the deploy stage.
     - docker push $DOCKER_IMAGE_NEW:latest
   needs: ["get-version-number-job","build-job","int-test-job-linux"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "release.*"'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^release.*/'
 
