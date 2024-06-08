@@ -157,7 +157,6 @@ deploy-dev-job:
     - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
-
   script:
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
     - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
@@ -165,7 +164,7 @@ deploy-dev-job:
     - ssh segesmac@dev.timeleft.us '~/deployment/setup.sh'
   needs: ["get-version-number-job","build-job","int-test-job-linux"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "feature/gl.*"'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ "feature\/gl.*"'
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
