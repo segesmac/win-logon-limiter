@@ -42,7 +42,7 @@ do
      esac
 done
 
-if [[ -z $DB_PASSWD ]] || [[ -z $DB_RT_PASSWD ]]
+if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ]
 then
      usage
      exit 1
