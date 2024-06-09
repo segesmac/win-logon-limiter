@@ -158,6 +158,7 @@ deploy-dev-job:
     - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
   script:
+    - export DOCKER_IMAGE="$DOCKER_REGISTRY/$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
     - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
     - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
