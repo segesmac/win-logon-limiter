@@ -97,10 +97,15 @@ manifest-job:
     - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-latest
     - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER
-    - docker tag $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8 $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
-    - docker push $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
-    - docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
-    - docker manifest push $DOCKER_IMAGE:$BRANCH_LABEL-latest
+    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER
+    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-amd64
+    - docker tag $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8 $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-arm64v8
+    - docker push $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-amd64
+    - docker push $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-arm64v8
+    #- docker push $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
+    #- docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
+    - docker manifest create $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-arm64v8 --amend $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-amd64
+    - docker manifest push $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER
   needs: ["get-version-number-job","build-arm-job","build-job"]
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
