@@ -157,12 +157,16 @@ deploy-dev-job:
     - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
+    - echo 'SendEnv CI_REGISTRY_USER' >> ~/.ssh/config
+    - echo 'SendEnv CI_REGISTRY_PASSWORD' >> ~/.ssh/config
+    - echo 'SendEnv CI_REGISTRY' >> ~/.ssh/config
+
   script:
-    - export DOCKER_IMAGE="$DOCKER_REGISTRY/$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
+    - export DOCKER_IMAGE="$CI_REGISTRY_IMAGE$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
     - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
     - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
-    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh'
+    - ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
   needs: ["get-version-number-job","manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
