@@ -148,7 +148,8 @@ deploy-dev-job:
     name: ${DOCKER_REGISTRY}ubuntu:latest
   environment:
     name: dev.timeleft.us
-    url: https://dev.timeleft.us/
+    url: https://staging.timeleft.us/
+    on_stop: stop-dev
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
@@ -162,10 +163,6 @@ deploy-dev-job:
     - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
     - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
-    #- echo 'SendEnv CI_REGISTRY_USER' >> ~/.ssh/config
-    #- echo 'SendEnv CI_REGISTRY_PASSWORD' >> ~/.ssh/config
-    #- echo 'SendEnv CI_REGISTRY' >> ~/.ssh/config
-
   script:
     - export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
@@ -176,6 +173,33 @@ deploy-dev-job:
   needs: ["get-version-number-job","manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+  
+stop-dev:
+  stage: deploy
+  tags:
+    - docker
+  image:
+    name: ${DOCKER_REGISTRY}ubuntu:latest
+  environment:
+    name: dev.timeleft.us
+    action: stop
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo 'SendEnv DB_PASSWD' > ~/.ssh/config
+    - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
+  script:
+    #- export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
+    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; docker-compose down'
+  when: manual
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
