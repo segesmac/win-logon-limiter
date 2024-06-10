@@ -48,5 +48,7 @@
 <div id="internetstatus">No data received.</div>
 <script src="includes/timetable.js"></script>
 </body>
-
+<footer>
+   <div><p>Version Number: __VERSION__</p></div>
+</footer>
 </html>
