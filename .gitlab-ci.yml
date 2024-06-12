@@ -241,9 +241,11 @@ deploy-dev-job:
     - export DOCKER_IMAGE_CRON="$DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER"
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
     - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
+    - scp $CRON_SSH_KNOWN_HOSTS segesmac@dev.timeleft.us:~/deployment/ssh_known_hosts_copied.txt
+    - scp $CRON_SSH_PRIVATE_KEY segesmac@dev.timeleft.us:~/deployment/ssh_private_key_copied.txt
     - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
     #- ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
-    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh'
+    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt'
   needs: ["get-version-number-job","manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
