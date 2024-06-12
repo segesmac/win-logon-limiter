@@ -23,7 +23,7 @@ DB_RT_PASSWD=$DB_RT_PASSWD
 CRON_SSH_KNOWN_HOSTS=$CRON_SSH_KNOWN_HOSTS
 CRON_SSH_PRIVATE_KEY=$CRON_SSH_PRIVATE_KEY
 VERBOSE=
-while getopts "hp:r:v" OPTION
+while getopts "hk:p:r:s:v" OPTION
 do
      case $OPTION in
          h)
