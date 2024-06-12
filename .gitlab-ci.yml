@@ -183,8 +183,11 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
     - export DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
+    - CRON_SUFFIX="-cron"
+    - export DOCKER_IMAGE_CRON="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER"
     - echo "DOCKER_IMAGE=$DOCKER_IMAGE"
     - docker pull $DOCKER_IMAGE
+    - docker pull $DOCKER_IMAGE_CRON
     - cd deployment
     - ls -al
     - ./setup.sh
@@ -194,7 +197,7 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
   artifacts:
     reports:
       junit: webobjects/phpunit-report.xml
-  needs: ["get-version-number-job","build-job"]
+  needs: ["get-version-number-job","build-job","cron-build-job"]
 
 update-version-number-job:
   stage: deploy
