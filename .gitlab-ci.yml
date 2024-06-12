@@ -42,7 +42,71 @@ unit-test-job:
     reports:
       junit: webobjects/phpunit-report.xml
   needs: []
-  
+
+cron-build-job:
+  stage: build
+  tags:
+    - docker
+  script:
+    - env
+    - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
+    - echo "Building version number '$BRANCH_LABEL-$VERSION_NUMBER'"
+    #- docker buildx ls
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter-cron"
+    - cd webobjects
+    - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-amd64 --platform linux/amd64 --push -f cron/Dockerfile .
+    #- docker push $DOCKER_IMAGE --all-tags
+  needs: ["get-version-number-job"]
+
+cron-build-arm-job:
+  stage: build
+  tags:
+    - docker-arm
+  script:
+    - env
+    - echo "BRANCH LABEL '$BRANCH_LABEL'" # This is generated in the .pre stage
+    - echo "Building version number '$BRANCH_LABEL-$VERSION_NUMBER'"
+    #- docker buildx ls
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter-cron-arm"
+    - cd webobjects
+    #- docker build -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:latest-$BRANCH_LABEL --platform linux/amd64 .
+    #- docker push $DOCKER_IMAGE --all-tags
+    # had to run this once to allow for arm64 builds: docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
+    # this link was helpful: https://stackoverflow.com/questions/70757791/build-linux-arm64-docker-image-on-linux-amd64-host
+    #- docker context create tls-environment
+    #- docker buildx create --name multi-arch-builder --driver docker-container --use tls-environment
+    #- docker buildx build -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push .
+    - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push -f cron/Dockerfile .
+    #- docker push $DOCKER_IMAGE --all-tags
+  needs: ["get-version-number-job"]
+
+cron-manifest-job:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - CRON_SUFFIX="-cron"
+    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter$CRON_SUFFIX"
+    - DOCKER_IMAGE_ARM="$CI_REGISTRY_IMAGE/win-logon-limiter${CRON_SUFFIX}-arm"
+    - docker pull --platform linux/arm64 $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8
+    - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-amd64
+    - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-latest
+    - docker pull --platform linux/amd64 $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER
+    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER
+    - docker tag $DOCKER_IMAGE:$BRANCH_LABEL-amd64 $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-amd64
+    - docker tag $DOCKER_IMAGE_ARM:$BRANCH_LABEL-arm64v8 $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-arm64v8
+    - docker push $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-amd64
+    - docker push $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-arm64v8
+    #- docker push $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8
+    #- docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
+    - docker manifest create $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-arm64v8 --amend $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-amd64
+    - docker manifest push $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER
+  needs: ["get-version-number-job","cron-build-arm-job","cron-build-job"]
 
 build-job:
   stage: build

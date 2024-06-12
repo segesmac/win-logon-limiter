@@ -8,6 +8,7 @@ services:
        MYSQL_DATABASE: winlogonlimiter
        MYSQL_USER: timeuser
        MYSQL_PASSWORD_FILE: /run/secrets/db_password
+       TZ: America/Denver
      secrets:
        - db_root_password
        - db_password
@@ -27,15 +28,35 @@ services:
        - "80:80"
      environment:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
+       TZ: America/Denver
      secrets:
        - db_password
-
+  
+   wllcron:
+     depends_on:
+       wlldb:
+         condition: service_healthy
+     image: ${DOCKER_IMAGE_CRON:-win-logon-limiter-cron:latest}
+     environment:
+       WLL_DB_PASSWORD_FILE: /run/secrets/db_password
+       WLL_SSH_KNOWN_HOSTS_FILE: /run/secrets/ssh_known_hosts
+       WLL_SSH_PRIVATE_KEY_FILE: /run/secrets/ssh_private_key
+       WLL_ROUTER_IP: 192.168.1.1
+       TZ: America/Denver
+     secrets:
+       - db_password
+       - ssh_known_hosts
+       - ssh_private_key
 
 secrets:
    db_password:
      file: db_password.txt
    db_root_password:
      file: db_root_password.txt
+   ssh_known_hosts:
+     file: ssh_known_hosts.txt
+   ssh_private_key:
+     file: ssh_private_key.txt
 
 volumes:
     wll_db_data:

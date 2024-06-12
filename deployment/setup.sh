@@ -10,14 +10,18 @@ This script runs docker compose to set up the win logon limiter environment. It 
 
 OPTIONS:
    -h      Show this message.
+   -k      SSH Known Hosts path to file. Can be passed as environment variable CRON_SSH_KNOWN_HOSTS instead.
    -p      The win logon limiter database password. Can be passed as environment variable DB_PASSWD instead.
    -r      The database root password. Can be passed as environment variable DB_RT_PASSWD instead.
+   -s      SSH Private Key path to file. Can be passed as environment variable CRON_SSH_PRIVATE_KEY instead.
    -v      Verbose.
 EOF
 }
 
 DB_PASSWD=$DB_PASSWD
 DB_RT_PASSWD=$DB_RT_PASSWD
+CRON_SSH_KNOWN_HOSTS=$CRON_SSH_KNOWN_HOSTS
+CRON_SSH_PRIVATE_KEY=$CRON_SSH_PRIVATE_KEY
 VERBOSE=
 while getopts "hp:r:v" OPTION
 do
@@ -26,12 +30,17 @@ do
              usage
              exit 0
              ;;
+         k)
+             CRON_SSH_KNOWN_HOSTS=$OPTARG
+             ;;
          p)
              DB_PASSWD=$OPTARG
              ;;
          r)
              DB_RT_PASSWD=$OPTARG
              ;;
+         s)
+             CRON_SSH_PRIVATE_KEY=$OPTARG
          v)
              VERBOSE=1
              ;;
@@ -42,7 +51,7 @@ do
      esac
 done
 
-if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ]
+if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ] 
 then
      usage
      exit 1
@@ -50,5 +59,7 @@ fi
 
 echo "$DB_PASSWD" > db_password.txt
 echo "$DB_RT_PASSWD" > db_root_password.txt
+cp -f $CRON_SSH_KNOWN_HOSTS ssh_known_hosts.txt
+cp -f $CRON_SSH_PRIVATE_KEY ssh_private_key.txt
 
 docker-compose -f docker-compose.yml up -d

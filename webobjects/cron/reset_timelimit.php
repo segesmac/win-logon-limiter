@@ -1,7 +1,6 @@
 <?php
 
-include("/var/www/password.php");
-include("/var/www/html/api/connect.php");
+include("/app/cron/db/connect.php");
 
 function update_timelimits(){
 
@@ -13,5 +12,3 @@ function update_timelimits(){
 }
 
 update_timelimits();
-
-?>
