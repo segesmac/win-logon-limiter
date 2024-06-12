@@ -7,6 +7,7 @@ DB_PASSWORD=$(cat /run/secrets/db_password)
 sed -i "s/##DB_PASSWORD##/$DB_PASSWORD/g" /app/password.php
 echo "Updated password.php\n"
 echo "Setting up router ssh key"
+eval $(ssh-agent -s)
 cp $WLL_SSH_PRIVATE_KEY_FILE ~/.ssh/ssh_private_key.key
 chmod 400 ~/.ssh/ssh_private_key.key
 ssh-add ~/.ssh/ssh_private_key.key
