@@ -12,4 +12,7 @@ ssh-add $WLL_SSH_PRIVATE_KEY_FILE
 cp "$WLL_SSH_KNOWN_HOSTS_FILE" ~/.ssh/known_hosts
 chmod 644 ~/.ssh/known_hosts
 echo "Finished setting up router ssh"
+echo "Setting up crontab"
+crontab -u root /app/cron/crontab.txt
+echo "Finished setting up crontab"
 exec "$@"

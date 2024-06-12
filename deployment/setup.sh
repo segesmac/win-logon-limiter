@@ -41,6 +41,7 @@ do
              ;;
          s)
              CRON_SSH_PRIVATE_KEY=$OPTARG
+             ;;
          v)
              VERBOSE=1
              ;;
