@@ -4,7 +4,7 @@ set -e
 # Update passsword file
 echo "Updating password file"
 DB_PASSWORD=$(cat /run/secrets/db_password)
-sed -i "s/##DB_PASSWORD##/$DB_PASSWORD/g" /app/cron/password.php
+sed -i "s/##DB_PASSWORD##/$DB_PASSWORD/g" /app/password.php
 echo "Updated password.php\n"
 echo "Setting up router ssh key"
 chmod 400 $WLL_SSH_PRIVATE_KEY_FILE
