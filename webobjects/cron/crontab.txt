@@ -20,6 +20,6 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 #
 # m h  dom mon dow   command
-0 8 * * * php /app/cron/reset_timelimit.php >> /tmp/timelimit.log 2>&1
-* * * * * php /app/cron/logout.php >> /tmp/logout.log 2>&1
-* * * * * php /app/cron/manage_internet.php >> /tmp/manage_internet.log 2>&1
+0 8 * * * /usr/local/bin/php /app/cron/reset_timelimit.php >> /tmp/timelimit.log 2>&1
+* * * * * /usr/local/bin/php /app/cron/logout.php >> /tmp/logout.log 2>&1
+* * * * * /usr/local/bin/php /app/cron/manage_internet.php >> /tmp/manage_internet.log 2>&1
