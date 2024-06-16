@@ -66,6 +66,7 @@ fi
 if [ -z $WEB_JWT_SECRET ]
 then
      # generate random string
+     echo "Generating random string for web_jwt_secret"
      head /dev/urandom | tr -dc A-Za-z0-9 | head -c44 > web_jwt_secret.txt
 else
      cp -f $WEB_JWT_SECRET web_jwt_secret.txt
