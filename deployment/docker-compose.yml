@@ -59,7 +59,7 @@ secrets:
      file: ssh_known_hosts.txt
    ssh_private_key:
      file: ssh_private_key.txt
-   jwt_secret:
+   web_jwt_secret:
      file: web_jwt_secret.txt
 
 volumes:
