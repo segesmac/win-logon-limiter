@@ -10,6 +10,7 @@ This script runs docker compose to set up the win logon limiter environment. It 
 
 OPTIONS:
    -h      Show this message.
+   -j      JWT secret key path to file. Can be passed as environment variable WEB_JWT_SECRET instead.
    -k      SSH Known Hosts path to file. Can be passed as environment variable CRON_SSH_KNOWN_HOSTS instead.
    -p      The win logon limiter database password. Can be passed as environment variable DB_PASSWD instead.
    -r      The database root password. Can be passed as environment variable DB_RT_PASSWD instead.
@@ -22,13 +23,17 @@ DB_PASSWD=$DB_PASSWD
 DB_RT_PASSWD=$DB_RT_PASSWD
 CRON_SSH_KNOWN_HOSTS=$CRON_SSH_KNOWN_HOSTS
 CRON_SSH_PRIVATE_KEY=$CRON_SSH_PRIVATE_KEY
+WEB_JWT_SECRET=$WEB_JWT_SECRET
 VERBOSE=
-while getopts "hk:p:r:s:v" OPTION
+while getopts "hj:k:p:r:s:v" OPTION
 do
      case $OPTION in
          h)
              usage
              exit 0
+             ;;
+         j)
+             WEB_JWT_SECRET=$OPTARG
              ;;
          k)
              CRON_SSH_KNOWN_HOSTS=$OPTARG
@@ -52,10 +57,18 @@ do
      esac
 done
 
-if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ] 
+if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ]
 then
      usage
      exit 1
+fi
+
+if [ -z $WEB_JWT_SECRET ]
+then
+     # generate random string
+     head /dev/urandom | tr -dc A-Za-z0-9 | head -c44 > web_jwt_secret.txt
+else
+     cp -f $WEB_JWT_SECRET web_jwt_secret.txt
 fi
 
 echo "$DB_PASSWD" > db_password.txt

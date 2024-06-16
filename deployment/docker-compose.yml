@@ -28,9 +28,11 @@ services:
        - "80:80"
      environment:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
+       WLL_JWT_SECRET_FILE: /run/secrets/web_jwt_secret
        TZ: America/Denver
      secrets:
        - db_password
+       - web_jwt_secret
   
    wllcron:
      depends_on:
@@ -57,6 +59,8 @@ secrets:
      file: ssh_known_hosts.txt
    ssh_private_key:
      file: ssh_private_key.txt
+   jwt_secret:
+     file: web_jwt_secret.txt
 
 volumes:
     wll_db_data:
