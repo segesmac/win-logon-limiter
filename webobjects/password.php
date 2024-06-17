@@ -2,4 +2,3 @@
 
 $password = "##DB_PASSWORD##";
 
-?>

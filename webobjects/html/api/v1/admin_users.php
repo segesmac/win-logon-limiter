@@ -3,6 +3,9 @@
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
 
+use Firebase\JWT\JWT;
+require_once('../../vendor/autoload.php');
+require('../jwt_auth.php');
 function modify_user( $username = ""
     , $timelimit = null
 	, $bonusminutesadd = null
@@ -205,7 +208,7 @@ $request_method=$_SERVER["REQUEST_METHOD"];
 if (isset($request_method)){
 	#echo "REQUEST_METHOD SET: $request_method";
 	switch($request_method){
-		case 'GET':
+		/*case 'GET':
 			// retrive users
 			if(!empty($_GET["username"]))
 			{
@@ -219,7 +222,7 @@ if (isset($request_method)){
 			break;
 		case 'POST':
 			insert_user();
-			break;
+			break;*/
 		case 'PUT':
 			if (!empty($_GET["username"])){
 				$username=strval($_GET["username"]);

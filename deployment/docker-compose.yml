@@ -29,10 +29,12 @@ services:
      environment:
        WLL_DB_PASSWORD_FILE: /run/secrets/db_password
        WLL_JWT_SECRET_FILE: /run/secrets/web_jwt_secret
+       WLL_JC_API_KEY_FILE: /run/secrets/web_jc_api_key
        TZ: America/Denver
      secrets:
        - db_password
        - web_jwt_secret
+       - web_jc_api_key
   
    wllcron:
      depends_on:
@@ -61,6 +63,8 @@ secrets:
      file: ssh_private_key.txt
    web_jwt_secret:
      file: web_jwt_secret.txt
+   web_jc_api_key:
+     file: web_jc_api_key.txt
 
 volumes:
     wll_db_data:

@@ -24,10 +24,13 @@ DB_RT_PASSWD=$DB_RT_PASSWD
 CRON_SSH_KNOWN_HOSTS=$CRON_SSH_KNOWN_HOSTS
 CRON_SSH_PRIVATE_KEY=$CRON_SSH_PRIVATE_KEY
 WEB_JWT_SECRET=$WEB_JWT_SECRET
+WEB_JC_API_KEY=$WEB_JC_API_KEY
 VERBOSE=
-while getopts "hj:k:p:r:s:v" OPTION
+while getopts "a:hj:k:p:r:s:v" OPTION
 do
      case $OPTION in
+         a)  WEB_JC_API_KEY=$OPTARG
+             ;;
          h)
              usage
              exit 0
@@ -57,7 +60,7 @@ do
      esac
 done
 
-if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ]
+if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ] || [ -z $WEB_JC_API_KEY ]
 then
      usage
      exit 1
@@ -76,5 +79,6 @@ echo "$DB_PASSWD" > db_password.txt
 echo "$DB_RT_PASSWD" > db_root_password.txt
 cp -f $CRON_SSH_KNOWN_HOSTS ssh_known_hosts.txt
 cp -f $CRON_SSH_PRIVATE_KEY ssh_private_key.txt
+cp -f $WEB_JC_API_KEY web_jc_api_key.txt
 
 docker-compose -f docker-compose.yml up -d
