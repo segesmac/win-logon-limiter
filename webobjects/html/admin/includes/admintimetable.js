@@ -2,7 +2,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 async function getTable(datastring_prev) {
-    $.getJSON( "api/v1/users.php", function( data ) {
+    $.getJSON( "../api/v1/users.php", function( data ) {
     var items = [];
     var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
     console.log(data);
@@ -70,7 +70,7 @@ async function getTable(datastring_prev) {
       } else {
         $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
       }
-    } else {
+    } else if (data.status < 1) {
         if (data.status_message.startsWith("No users exist!")){
             $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
         } else {

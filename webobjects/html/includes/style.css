@@ -4,7 +4,7 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 30px;
 }
-#adminconsolebutton {
+#adminconsolebutton, #userbutton {
   width: 150px;
   text-align: center;
   margin-left: auto;
@@ -18,10 +18,18 @@
   background-color: dimgrey;
   font-weight: bold;
 }
+#adminconsolebutton:hover {
+  background-color:grey;
+}
 #adminconsolebutton:active {
   background-color:darkcyan;
 }
-
+#userbutton:hover {
+  background-color:grey;
+}
+#userbutton:active {
+  background-color:darkcyan;
+}
 a {
   text-decoration: none;
 }

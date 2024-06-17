@@ -1,6 +1,6 @@
 <?php
 use Firebase\JWT\JWT;
-require_once('/../../../vendor/autoload.php');
+require_once(__DIR__ . '/../../../vendor/autoload.php');
 
 // Validate the credentials in the database, or in other data store.
 require(__DIR__ . "/../connect.php");
@@ -33,7 +33,15 @@ if ($username != ""){
     if (count($response) == 1 && $username != ""){
         $is_admin = $response[0]['isadmin'];
         $password_hash = $response[0]['passwordhash'];
-        if (password_verify($password,$password_hash)){
+        if ($password_hash == NULL){
+            $status_message = "User $username doesn't yet have a password. Please create one!";
+            $return_response = array(
+                'status' => -1,
+                'status_message' => $status_message
+            );
+            header('Content-Type: application/json');
+            echo json_encode($return_response);
+        } elseif (password_verify($password,$password_hash)){
             $has_valid_credentials = true;
         }
     } elseif (count($response) == 0){
@@ -46,8 +54,8 @@ if ($username != ""){
         echo json_encode($return_response);
     } else {
         $return_response = array(
-            'status' => 1,
-            'status_message' => "Found users successfully!",
+            'status' => 0,
+            'status_message' => "Not sure what happened!",
             'payload' => $response
         );
         header('Content-Type: application/json');
@@ -78,11 +86,15 @@ if ($has_valid_credentials) {
     ];
 
     // Encode the array to a JWT string.
-    echo JWT::encode(
-        $request_data,      //Data to be encoded in the JWT
-        $secret_Key, // The signing key
-        'HS512'     // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+    $return_response = array(
+        'status' => 1,
+        'status_message' => "Successfully created JWT!",
+        'payload' => JWT::encode(
+            $request_data,      //Data to be encoded in the JWT
+            $secret_Key, // The signing key
+            'HS512'     // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+        )
     );
-} else {
-    die ('Invalid Credentials!');
+    header('Content-Type: application/json');
+    echo json_encode($return_response);
 }

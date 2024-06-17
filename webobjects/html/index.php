@@ -37,13 +37,37 @@
    #}
    #phpinfo(32);
 ?>
-<script src="includes/jquery.min.js"></script>
-<link rel="stylesheet" href="includes/style.css" />
-<a href="admin/"><div id="adminconsolebutton">Admin Login</div></a>
+   <script src="includes/jquery.min.js"></script>
+   <link rel="stylesheet" href="includes/style.css" />
+   <a href="#"><div id="userbutton">User Login</div></a>
+   <a href="admin/"><div id="adminconsolebutton">Admin Login</div></a>
+   <a href="#"><div id="btn_change_pwd" style="display: none;">Change Password</div></a>
 </head>
 <body>
 <!--Your candidate is: <h1 id=list>-</h1> Make the locals proud.
 <h2 id=list2>-</h2> So-so-->
+<div id="loginwindow" style="display: none;">
+   <form method="post" action="#" id="loginform">
+        <label for="uname"><b>Username:</b></label>
+        <input type="text" placeholder="Enter Username" name="uname" list="userlist" required />
+        <datalist id="userlist"></datalist>
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="psw">
+        <button id="loginbutton" type="submit">Login</button>
+   </form>
+</div>
+<div id="changepwdwindow" style="display: none;">
+   <div id="alertpassword" style="display: none;"></div>
+   <form method="post" action="#" id="passwordform">
+        <label for="oldpwd" id="oldpwdlbl"><b>Old Password</b></label>
+        <input type="password" id="oldpwdinput" placeholder="Enter Old Password" name="oldpwd" />
+        <label for="newpsw1"><b>New Password</b></label>
+        <input type="password" placeholder="Enter New Password" name="newpsw1" required>
+        <label for="newpsw2"><b>Retype New Password</b></label>
+        <input type="password" placeholder="Reenter New Password" name="newpsw2" required>
+        <button id="changepwdbutton" type="submit">Submit</button>
+   </form>
+</div>
 <div id="timetable">No data received.</div>
 <div id="internetstatus">No data received.</div>
 <script src="includes/timetable.js"></script>
