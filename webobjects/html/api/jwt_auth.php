@@ -1,6 +1,6 @@
 <?php
 use Firebase\JWT\JWT;
-require_once(__DIR__ . '../vendor/autoload.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
 # Get headers to extract "authorization"
 $headers = apache_request_headers();
 if (! preg_match('/Bearer\s(\S+)/', $headers['authorization'], $matches)) {

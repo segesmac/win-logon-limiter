@@ -3,7 +3,7 @@
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
 
-require(__DIR__ . '../jwt_auth.php');
+require(__DIR__ . '/../jwt_auth.php');
 function modify_user( $username = ""
     , $timelimit = null
 	, $bonusminutesadd = null
