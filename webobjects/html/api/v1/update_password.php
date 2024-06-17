@@ -1,8 +1,8 @@
 <?php
 //declare(strict_types=1);
 
-require_once('../curl_connect.php');
-require('../jwt_auth.php');
+require_once(__DIR__ . '../curl_connect.php');
+require(__DIR__ . '../jwt_auth.php');
 
 # This update password page will update the new usertable table
 # If the user doesn't have a password set in the usertable table, he will not be prompted
