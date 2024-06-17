@@ -9,8 +9,9 @@ usage: $0 options
 This script runs docker compose to set up the win logon limiter environment. It assumes the docker_compose.yml file is in the same directory as this script.
 
 OPTIONS:
+   -a      JumpCloud API key path to file. Can be passed as environment variable WEB_JC_API_KEY instead.
    -h      Show this message.
-   -j      JWT secret key path to file. Can be passed as environment variable WEB_JWT_SECRET instead.
+   -j      (Optional) JWT secret key path to file. Can be passed as environment variable WEB_JWT_SECRET instead.
    -k      SSH Known Hosts path to file. Can be passed as environment variable CRON_SSH_KNOWN_HOSTS instead.
    -p      The win logon limiter database password. Can be passed as environment variable DB_PASSWD instead.
    -r      The database root password. Can be passed as environment variable DB_RT_PASSWD instead.
@@ -60,7 +61,7 @@ do
      esac
 done
 
-if [ -z $DB_PASSWD ] || [ -z $DB_RT_PASSWD ] || [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ] || [ -z $WEB_JC_API_KEY ]
+if [ -z $CRON_SSH_KNOWN_HOSTS ] || [ -z $CRON_SSH_PRIVATE_KEY ] || [ -z $WEB_JC_API_KEY ]
 then
      usage
      exit 1
@@ -75,8 +76,24 @@ else
      cp -f $WEB_JWT_SECRET web_jwt_secret.txt
 fi
 
-echo "$DB_PASSWD" > db_password.txt
-echo "$DB_RT_PASSWD" > db_root_password.txt
+if [ -z $DB_PASSWD ]
+then
+     # generate random string
+     echo "Generating random string for db_password"
+     head /dev/urandom | tr -dc A-Za-z0-9 | head -c44 > db_password.txt
+else
+     echo "$DB_PASSWD" > db_password.txt
+fi
+
+if [ -z $DB_RT_PASSWD ]
+then
+     # generate random string
+     echo "Generating random string for db_root_password"
+     head /dev/urandom | tr -dc A-Za-z0-9 | head -c44 > db_root_password.txt
+else
+     echo "$DB_RT_PASSWD" > db_root_password.txt
+fi
+
 cp -f $CRON_SSH_KNOWN_HOSTS ssh_known_hosts.txt
 cp -f $CRON_SSH_PRIVATE_KEY ssh_private_key.txt
 cp -f $WEB_JC_API_KEY web_jc_api_key.txt

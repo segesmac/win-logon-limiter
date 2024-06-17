@@ -1,6 +1,6 @@
 <?php
 use Firebase\JWT\JWT;
-require_once('/../../vendor/autoload.php');
+require_once('/../../../vendor/autoload.php');
 
 // Validate the credentials in the database, or in other data store.
 require(__DIR__ . "/../connect.php");
