@@ -1,1 +1,1 @@
-DELETE TABLE `useradmintable` /*ENGINE=InnoDB DEFAULT CHARSET=utf8mb4*/;
+DROP TABLE IF EXISTS `useradmintable` /*ENGINE=InnoDB DEFAULT CHARSET=utf8mb4*/;
