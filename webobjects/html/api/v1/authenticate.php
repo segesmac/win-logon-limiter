@@ -51,7 +51,7 @@ if ($username != ""){
             $return_response["authenticated"] = $response_message;
             $has_valid_credentials = true;
         } else {
-            $status_message = "Password '$password' did not verify with '$password_hash'!";
+            $status_message = "Incorrect password.";
             $response_message = array(
                 'status' => -1,
                 'status_message' => $status_message

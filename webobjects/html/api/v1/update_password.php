@@ -111,7 +111,7 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
                     
                     $response = array(
                         'status' => $affected_rows,
-                        'status_message' => "Set new password '$newpassword' for '$username' successfully!"
+                        'status_message' => "Set new password for '$username' successfully!"
                     );
                 }
                 $return_response["password_set"] = $response;

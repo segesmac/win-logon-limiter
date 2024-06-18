@@ -151,6 +151,8 @@ async function authenticate() {
         } else if (response_obj.authenticated.status_message == 'Password validated.') { 
           console.log("Successfully logged in.");
         } else {
+          $('div#alertpassword')[0].style.display = 'block';
+          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
           console.log('Something went wrong jwt: ' + response_obj.jwtauthenticated.status_message);
           console.log('Something went wrong auth: ' + response_obj.authenticated.status_message);
           console.log('Something went wrong: ' + response_obj.status_message);
@@ -167,6 +169,7 @@ loginBtn.addEventListener('submit', async (e) => {
 
 async function change_password() {
   if (formData2.newpsw1.value != formData2.newpsw2.value){
+    $('div#alertpassword')[0].style.display = 'block';
     $('div#alertpassword')[0].innerHTML = '<p>Passwords do not match. Please try again!</p>';
     return false;
   }
@@ -191,12 +194,13 @@ async function change_password() {
       if (response_obj.password_set.status_message.startsWith('Set new password for') && response_obj.password_set.status_message.endsWith('successfully!')){
         //frmLogin.style.display = 'none'; 
         $('div#changepwdwindow')[0].style.display = 'none';
+        $('div#alertpassword')[0].style.display = 'none';
         btn_change_pwd.style.display = 'block';
         console.log(response_obj.jumpcloud_pw_set);
         alert('Password changed successfully!');
       } else {
-        console.log('Something went wrong jwt: ' + response_obj.password_set.status_message);
-        console.log('Something went wrong auth: ' + response_obj.jumpcloud_pw_set);
+        console.log('Something went wrong password_set: ' + response_obj.password_set.status_message);
+        console.log('Something went wrong jumpcloud: ' + response_obj.jumpcloud_pw_set);
         console.log('Something went wrong: ' + response_obj.status_message);
         console.log(response_obj.status_message);
       }
