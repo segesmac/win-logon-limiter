@@ -109,8 +109,10 @@ $('div#userbutton').click(function(){
 
 const storeJWT = {};
 const loginBtn = document.querySelector('#loginform');
+const passwordform = document.querySelector('#passwordform');
 const btn_change_pwd = document.querySelector('#btn_change_pwd');
 const formData = document.forms[0];
+const formData2 = document.forms[1];
 
 // Inserts the jwt to the store object
 storeJWT.setJWT = function (data) {
@@ -129,23 +131,28 @@ async function authenticate() {
     if (response.status >= 200 && response.status <= 299) {
         json_response = await response.text();
         response_obj = JSON.parse(json_response);
-        if (response_obj.status_message == 'Successfully created JWT!'){
-          storeJWT.setJWT(response_obj.payload);
+        if (response_obj.jwtauthenticated.status_message == 'Successfully created JWT!'){
+          storeJWT.setJWT(response_obj.jwtauthenticated.payload);
         
           //frmLogin.style.display = 'none';
           $('div#loginwindow')[0].style.display = 'none';
           btn_change_pwd.style.display = 'block';
           $('div#userbutton')[0].innerHTML = formData.uname.value + ' Logout';
 
-        } else if (response_obj.status_message == "User "+formData.uname.value+" doesn't yet have a password. Please create one!") {
+        }
+        if (response_obj.authenticated.status_message == "User "+formData.uname.value+" doesn't yet have a password. Please create one!") {
           $('div#loginwindow')[0].style.display = 'none';
           btn_change_pwd.style.display = 'block';
           $('div#changepwdwindow')[0].style.display = 'block';
           $('div#alertpassword')[0].style.display = 'block';
-          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.status_message+'</p>';
+          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
           $('label#oldpwdlbl')[0].style.display = 'none';
           $('input#oldpwdinput')[0].style.display = 'none';
-        }  else {
+        } else if (response_obj.authenticated.status_message == 'Password validated.') { 
+          console.log("Successfully logged in.");
+        } else {
+          console.log('Something went wrong jwt: ' + response_obj.jwtauthenticated.status_message);
+          console.log('Something went wrong auth: ' + response_obj.authenticated.status_message);
           console.log('Something went wrong: ' + response_obj.status_message);
         }
     } else {
@@ -156,6 +163,58 @@ async function authenticate() {
 loginBtn.addEventListener('submit', async (e) => {
     e.preventDefault();
     authenticate();
+});
+
+async function change_password() {
+  if (formData2.newpsw1.value != formData2.newpsw2.value){
+    $('div#alertpassword')[0].innerHTML = '<p>Passwords do not match. Please try again!</p>';
+    return false;
+  }
+  const response = await fetch('api/v1/update_password.php', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Authorization': `Bearer ${storeJWT.JWT}`
+      },
+      body: encodeURIComponent("username") + '=' + encodeURIComponent(formData.uname.value) + '&' 
+            + encodeURIComponent("oldpassword") + '=' + encodeURIComponent(formData2.oldpwd.value) + '&'
+            + encodeURIComponent("newpassword") + '=' + encodeURIComponent(formData2.newpsw2.value)
+  });
+  if (response.status >= 200 && response.status <= 299) {
+      json_response = await response.text();
+      try {
+        response_obj = JSON.parse(json_response);
+      } catch {
+        console.log("ERROR:");
+        console.log(json_response);
+      }
+      if (response_obj.password_set.status_message.startsWith('Set new password for') && response_obj.password_set.status_message.endsWith('successfully!')){
+        //frmLogin.style.display = 'none'; 
+        $('div#changepwdwindow')[0].style.display = 'none';
+        btn_change_pwd.style.display = 'block';
+        console.log(response_obj.jumpcloud_pw_set);
+        alert('Password changed successfully!');
+      } else {
+        console.log('Something went wrong jwt: ' + response_obj.password_set.status_message);
+        console.log('Something went wrong auth: ' + response_obj.jumpcloud_pw_set);
+        console.log('Something went wrong: ' + response_obj.status_message);
+        console.log(response_obj.status_message);
+      }
+  } else {
+      // Handle errors
+      console.log(response.status, response.statusText);
+  }
+}
+
+passwordform.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  change_password();
+});
+
+btn_change_pwd.addEventListener('click', function (e){
+  $('div#changepwdwindow')[0].style.display = 'block';
+  $('label#oldpwdlbl')[0].style.display = 'block';
+  $('input#oldpwdinput')[0].style.display = 'block';
 });
 
 /* // Need to create a form for changing the password

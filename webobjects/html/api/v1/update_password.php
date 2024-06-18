@@ -29,28 +29,59 @@ require(__DIR__ . '/../jwt_auth.php');
         -H 'x-api-key: {API_KEY}' \
         -d '{"password":"{PASSWORD_HERE}"}'
     */
-function update_password($jwt_username, $jwt_isadmin, $username = "", $password = ""){
+function update_password($jwt_username, $jwt_isadmin, $username = "", $newpassword = "", $oldpassword = ""){
     // Validate the credentials in the database, or in other data store.
     require(__DIR__ . "/../connect.php");
     $return_response = array();
     $api_url = 'https://console.jumpcloud.com/api';
 
     $data = json_decode(file_get_contents('php://input'), true);
-	if (!empty($data["username"]) && $username == "") {
-		$username = strval($data["username"]);
-	}
-	if (!empty($data["password"]) && $password == "") {
-    	$password = strval($data["password"]);
-	}
+    if (!empty($data["username"]) && $username == "") {
+        $username = strval($data["username"]);
+    }
+    if (!empty($data["newpassword"]) && $newpassword == "") {
+        $newpassword = strval($data["newpassword"]);
+    }
+    if (!empty($data["oldpassword"]) && $oldpassword == "") {
+        $oldpassword = strval($data["oldpassword"]);
+    }
 
-	header('Content-Type: application/json');
-	if (($username != "" && $jwt_username == $username) || ($username != "" && $jwt_isadmin == 1)) {
-        # Confirmed user exists - now attempting to update password using ARGON2ID hash
-        if ($password != ""){
+    header('Content-Type: application/json');
+    if (($username != "" && $jwt_username == $username) || ($username != "" && $jwt_isadmin == 1)) {
+        # Confirmed user exists - need to verify oldpassword against existing db
+        $stmt = mysqli_stmt_init($conn);
+        if (mysqli_stmt_prepare($stmt, 'SELECT * FROM usertable WHERE username=?')){
+            mysqli_stmt_bind_param($stmt, "s", $username);
+            mysqli_stmt_execute($stmt);
+            #mysqli_stmt_bind_result($stmt, $response);
+            $result = mysqli_stmt_get_result($stmt);
+            mysqli_stmt_close($stmt);
+        } else {
+            die ("Failed to prepare statement: SELECT * FROM usertimetable WHERE username=$username\n");
+        }
+        $response=array();
+        while($row=mysqli_fetch_assoc($result)){
+            $response[]=$row;
+        }
+        $has_valid_credentials = false;
+        
+        if (count($response) == 1 && $username != ""){
+            $password_hash = $response[0]['passwordhash'];
+            if ($password_hash == NULL){
+                # No need to compare if there was never a password to begin with
+                $has_valid_credentials = true;
+            } elseif (password_verify($oldpassword,$password_hash)){
+                $has_valid_credentials = true;
+            } elseif ($jwt_isadmin == 1){ # Don't need to verify old password if an admin is changing the password
+                $has_valid_credentials = true;
+            }
+        }
+        # now attempting to update password using ARGON2ID hash
+        if ($newpassword != "" && $has_valid_credentials){
             # hashing password using ARGON2ID algorithm
             # to verify a password against this algorithm, use:
                 # password_verify($password,$passwordhash);
-            $passwordhash = password_hash($password, PASSWORD_ARGON2ID);
+            $passwordhash = password_hash($newpassword, PASSWORD_ARGON2ID);
             $stmt = mysqli_stmt_init($conn);
             if (mysqli_stmt_prepare($stmt,"UPDATE usertable SET passwordhash = ? WHERE username = ?")){
                 mysqli_stmt_bind_param($stmt,"ss", $passwordhash, $username);
@@ -65,10 +96,11 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $password 
                 } else {
                     # Make call to JumpCloud to update password there, too
                     $user_obj_json = curl_api('GET', $api_url.'/systemusers?limit=10&skip=0&sort=&fields=&filter=username:$eq:'.$username);
+                    //var_dump($user_obj_json);
                     $user_obj = json_decode($user_obj_json, true);
                     if ($user_obj['totalCount'] == 1){
-                        $user_id = $usr_obj['results'][0]['id'];
-                        $curl_data = '{"password": "'.$password.'"}';
+                        $user_id = $user_obj['results'][0]['id'];
+                        $curl_data = '{"password": "'.$newpassword.'"}';
                         $jumpcloud_response = curl_api('PUT', $api_url.'/systemusers/'.$user_id.'?fullValidationDetails=password', $curl_data);
                     } else {
                         $jumpcloud_response = array(
@@ -79,7 +111,7 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $password 
                     
                     $response = array(
                         'status' => $affected_rows,
-                        'status_message' => "Set new password for $username successfully!"
+                        'status_message' => "Set new password '$newpassword' for '$username' successfully!"
                     );
                 }
                 $return_response["password_set"] = $response;
@@ -92,7 +124,7 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $password 
             mysqli_close($conn);
             die ("Password is required - cannot update password to blank.");
         }
-	} else {
+    } else {
         mysqli_close($conn);
         if ($username == ""){
             die ("Username is required - cannot update password for all users.");
@@ -103,37 +135,39 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $password 
         die ("I don't know what happened...");
     }
     echo json_encode($return_response);
-	mysqli_close($conn);
+    mysqli_close($conn);
 }
 
 $request_method=$_SERVER["REQUEST_METHOD"];
 if (isset($request_method)){
-	#echo "REQUEST_METHOD SET: $request_method";
-	switch($request_method){
-		/*case 'GET':
-			// retrive users
-			if(!empty($_GET["username"]))
-			{
-				$username=strval($_GET["username"]);
-				get_users($username);
-			}
-			else
-			{
-				get_users();
-			}
-			break;
-		case 'POST':
-			insert_user();
-			break;*/
-		case 'PUT':
-			if (!empty($_GET["username"])){
-				$username=strval($_GET["username"]);
-				update_password($token->username, $token->is_admin, $username); # $token comes from ../jwt_auth.php
-			}
-			break;
-		default:
-			// Invalid Request Method
-			header("HTTP/1.0 405 Method Not Allowed");
-			break;
-	}
+    #echo "REQUEST_METHOD SET: $request_method";
+    switch($request_method){
+        /*case 'GET':
+            // retrive users
+            if(!empty($_GET["username"]))
+            {
+                $username=strval($_GET["username"]);
+                get_users($username);
+            }
+            else
+            {
+                get_users();
+            }
+            break;
+        case 'POST':
+            insert_user();
+            break;*/
+        case 'POST':
+            if (!empty($_POST["username"])){
+                $username=strval($_POST["username"]);
+                $newpassword=strval($_POST["newpassword"]);
+                $oldpassword=strval($_POST["oldpassword"]);
+                update_password($token->username, $token->is_admin, $username, $newpassword, $oldpassword); # $token comes from ../jwt_auth.php
+            }
+            break;
+        default:
+            // Invalid Request Method
+            header("HTTP/1.0 405 Method Not Allowed");
+            break;
+    }
 }

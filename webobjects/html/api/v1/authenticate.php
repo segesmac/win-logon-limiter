@@ -14,6 +14,7 @@ $is_admin = 0;
 $has_valid_credentials = false; # After checking database with username and password
 
 if ($username != ""){
+    $return_response = array();
     $stmt = mysqli_stmt_init($conn);
     if (mysqli_stmt_prepare($stmt, 'SELECT * FROM usertable WHERE username=?')){
         mysqli_stmt_bind_param($stmt, "s", $username);
@@ -35,31 +36,47 @@ if ($username != ""){
         $password_hash = $response[0]['passwordhash'];
         if ($password_hash == NULL){
             $status_message = "User $username doesn't yet have a password. Please create one!";
-            $return_response = array(
+            $response_message = array(
                 'status' => -1,
                 'status_message' => $status_message
             );
-            header('Content-Type: application/json');
-            echo json_encode($return_response);
-        } elseif (password_verify($password,$password_hash)){
+            $return_response["authenticated"] = $response_message;
             $has_valid_credentials = true;
+        } elseif (password_verify($password,$password_hash)){
+            $status_message = "Password validated.";
+            $response_message = array(
+                'status' => -1,
+                'status_message' => $status_message
+            );
+            $return_response["authenticated"] = $response_message;
+            $has_valid_credentials = true;
+        } else {
+            $status_message = "Password '$password' did not verify with '$password_hash'!";
+            $response_message = array(
+                'status' => -1,
+                'status_message' => $status_message
+            );
+            $return_response["authenticated"] = $response_message;
+            $return_response["jwtauthenticated"] = $response_message;
+            header('Content-Type: application/json');
+            die (json_encode($return_response));
         }
     } elseif (count($response) == 0){
         $status_message = "User $username doesn't exist!";
-        $return_response = array(
+        $response_message = array(
             'status' => -1,
             'status_message' => $status_message
         );
         header('Content-Type: application/json');
-        echo json_encode($return_response);
+        echo json_encode($response_message);
     } else {
-        $return_response = array(
+        $response_message = array(
             'status' => 0,
             'status_message' => "Not sure what happened!",
             'payload' => $response
         );
         header('Content-Type: application/json');
-        echo json_encode($return_response);
+        echo json_encode($response_message);
     }
 } else {
     die ('Username must be included for authentication to happen.');
@@ -86,7 +103,7 @@ if ($has_valid_credentials) {
     ];
 
     // Encode the array to a JWT string.
-    $return_response = array(
+    $return_response["jwtauthenticated"] = array(
         'status' => 1,
         'status_message' => "Successfully created JWT!",
         'payload' => JWT::encode(

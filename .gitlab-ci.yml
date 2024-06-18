@@ -25,6 +25,7 @@ get-version-number-job:
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_pre/000_get_version.ps1'
+  retry: 2
   artifacts:
     reports:
       dotenv: build.env
@@ -41,6 +42,7 @@ unit-test-job:
   artifacts:
     reports:
       junit: webobjects/phpunit-report.xml
+  retry: 2
   needs: []
 
 cron-build-job:
@@ -58,6 +60,7 @@ cron-build-job:
     - cd webobjects
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-amd64 --platform linux/amd64 --push -f cron/Dockerfile .
     #- docker push $DOCKER_IMAGE --all-tags
+  retry: 2
   needs: ["get-version-number-job"]
 
 cron-build-arm-job:
@@ -82,6 +85,7 @@ cron-build-arm-job:
     #- docker buildx build -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push .
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push -f cron/Dockerfile .
     #- docker push $DOCKER_IMAGE --all-tags
+  retry: 2
   needs: ["get-version-number-job"]
 
 cron-manifest-job:
@@ -106,6 +110,7 @@ cron-manifest-job:
     #- docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker manifest create $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-arm64v8 --amend $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-amd64
     - docker manifest push $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER
+  retry: 2
   needs: ["get-version-number-job","cron-build-arm-job","cron-build-job"]
 
 build-job:
@@ -124,6 +129,7 @@ build-job:
     - sed -i "s/__VERSION__/$BRANCH_LABEL-$VERSION_NUMBER/g" html/index.php
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-amd64 --platform linux/amd64 --push .
     #- docker push $DOCKER_IMAGE --all-tags
+  retry: 2
   needs: ["get-version-number-job"]
 
 build-arm-job:
@@ -149,6 +155,7 @@ build-arm-job:
     #- docker buildx build -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push .
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --platform linux/arm64 --push .
     #- docker push $DOCKER_IMAGE --all-tags
+  retry: 2
   needs: ["get-version-number-job"]
 
 manifest-job:
@@ -172,6 +179,7 @@ manifest-job:
     #- docker manifest create $DOCKER_IMAGE:$BRANCH_LABEL-latest --amend $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_IMAGE:$BRANCH_LABEL-arm64v8 --amend $DOCKER_IMAGE:$BRANCH_LABEL-amd64
     - docker manifest create $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER --amend $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-arm64v8 --amend $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-amd64
     - docker manifest push $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER
+  retry: 2
   needs: ["get-version-number-job","build-arm-job","build-job"]
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
@@ -197,6 +205,7 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
   artifacts:
     reports:
       junit: webobjects/phpunit-report.xml
+  retry: 2
   needs: ["get-version-number-job","build-job","cron-build-job"]
 
 update-version-number-job:

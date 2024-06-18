@@ -1,8 +1,10 @@
 <?php
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 require_once(__DIR__ . '/../../vendor/autoload.php');
 # Get headers to extract "authorization"
 $headers = apache_request_headers();
+#var_dump($headers);
 if (! preg_match('/Bearer\s(\S+)/', $headers['authorization'], $matches)) {
     header('HTTP/1.0 400 Bad Request');
     echo 'Token not found in request';
@@ -20,7 +22,7 @@ $secretKey  = file_get_contents(getenv("WLL_JWT_SECRET_FILE"));
 // Adding a leeway of 60 seconds
 JWT::$leeway += 60;
 try {
-    $token = JWT::decode((string)$jwt, $secretKey, ['HS512']);
+    $token = JWT::decode((string)$jwt, new Key($secretKey, 'HS512'));
 } catch (Firebase\JWT\ExpiredException $e) {
     header('HTTP/1.1 401 Unauthorized');
     echo 'Expired token';
