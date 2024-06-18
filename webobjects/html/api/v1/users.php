@@ -87,12 +87,13 @@ function insert_user( $username = "" # jdoe
 		WHERE NOT EXISTS (
 			SELECT username FROM usertimetable WHERE username = ?
 			) 
-		LIMIT 1;")){
+		LIMIT 1;
+		")){
 		mysqli_stmt_bind_param($stmt, "siis", $username, $timelimit, $timelimit, $username);
 		mysqli_stmt_execute($stmt);
 		#printf("%d Row inserted.\n", mysqli_stmt_affected_rows($stmt));
 		$affected_rows = mysqli_stmt_affected_rows($stmt);
-		mysqli_stmt_close($stmt);
+		
 		if ($affected_rows == 0){
 			$response = array(
 				'status' => 1,
@@ -103,6 +104,32 @@ function insert_user( $username = "" # jdoe
 				'status' => 1,
 				'status_message' => "User $username inserted successfully!"
 			);
+		}
+		mysqli_stmt_close($stmt);
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt,
+		"INSERT INTO `usertable` (`usertimetableid`,`username`) 
+		SELECT `usertimetableid`, `username` 
+		FROM `usertimetable` WHERE username = ?
+		WHERE NOT EXISTS (
+			SELECT username FROM usertable WHERE username = ?
+			) 
+		LIMIT 1;
+		")) {
+			mysqli_stmt_bind_param($stmt, "ss", $username, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			if ($affected_rows == 0){
+				$response['status_message_usertable'] = "User $username already exists in usertable.";
+				$response['status_usertable'] = 1;
+			} else {
+				$response['status_usertable'] = 1;
+				$response['status_message_usertable'] = "User $username inserted into usertable successfully!";
+			}
+			mysqli_stmt_close($stmt);
+		} else {
+			$response['status_usertable'] = 0;
+			$response['status_message_usertable'] =  "Error: \n<br />\n" . mysqli_error($conn);
 		}
 	} else {
 		$response = array(

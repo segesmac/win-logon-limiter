@@ -70,10 +70,19 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
             if ($password_hash == NULL){
                 # No need to compare if there was never a password to begin with
                 $has_valid_credentials = true;
+            } 
+            if ($jwt_isadmin == 1){ # Don't need to verify old password if an admin is changing the password
+                $has_valid_credentials = true;
             } elseif (password_verify($oldpassword,$password_hash)){
                 $has_valid_credentials = true;
-            } elseif ($jwt_isadmin == 1){ # Don't need to verify old password if an admin is changing the password
-                $has_valid_credentials = true;
+            } else {
+                $response = array(
+                    'status' => 0,
+                    'status_message' => "Old password incorrect or you are not an admin!"
+                );
+                $return_response["password_set"] = $response;
+                $return_response["jumpcloud_pw_set"] = $response;
+                die(json_encode($return_response));
             }
         }
         # now attempting to update password using ARGON2ID hash

@@ -101,7 +101,7 @@ async function getTable(datastring_prev) {
     //})();
 }
 
-$('div#userbutton').click(function(){
+$('div#user_button').click(function(){
   $('div#loginwindow')[0].style.display = 'block';
 });
 
@@ -109,14 +109,22 @@ $('div#userbutton').click(function(){
 
 const storeJWT = {};
 const loginBtn = document.querySelector('#loginform');
+const logout_button = document.querySelector('#logout_button');
 const passwordform = document.querySelector('#passwordform');
 const btn_change_pwd = document.querySelector('#btn_change_pwd');
+const password_button = document.querySelector('#password_button');
+const closelogin = document.querySelector('#closelogin');
+const closepassword = document.querySelector('#closepassword');
+
 const formData = document.forms[0];
 const formData2 = document.forms[1];
 
 // Inserts the jwt to the store object
 storeJWT.setJWT = function (data) {
   this.JWT = data;
+};
+storeJWT.setUser = function (data) {
+  this.jwtuser = data;
 };
 async function authenticate() {
     const response = await fetch('api/v1/authenticate.php', {
@@ -133,26 +141,31 @@ async function authenticate() {
         response_obj = JSON.parse(json_response);
         if (response_obj.jwtauthenticated.status_message == 'Successfully created JWT!'){
           storeJWT.setJWT(response_obj.jwtauthenticated.payload);
-        
+          storeJWT.setUser(formData.uname.value);
           //frmLogin.style.display = 'none';
           $('div#loginwindow')[0].style.display = 'none';
-          btn_change_pwd.style.display = 'block';
-          $('div#userbutton')[0].innerHTML = formData.uname.value + ' Logout';
+          $('input[name="uname"]').val(''); // Reset inputs
+          $('input[name="psw"]').val(''); // Reset inputs
+          btn_change_pwd.style.display = 'inline-flex';
+          $('a#userbutton')[0].style.display = 'none';
+          $('a#a_logout_wrapper')[0].style.display = 'inline-flex';
+          $('div#welcome')[0].style.display = 'inline-flex';
+          $('div#welcome')[0].innerHTML = '<p>Welcome '+ storeJWT.jwtuser + '!';
 
         }
-        if (response_obj.authenticated.status_message == "User "+formData.uname.value+" doesn't yet have a password. Please create one!") {
+        if (response_obj.authenticated.status_message == "User "+storeJWT.jwtuser+" doesn't yet have a password. Please create one!") {
           $('div#loginwindow')[0].style.display = 'none';
-          btn_change_pwd.style.display = 'block';
+          btn_change_pwd.style.display = 'inline-flex';
           $('div#changepwdwindow')[0].style.display = 'block';
-          $('div#alertpassword')[0].style.display = 'block';
-          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
-          $('label#oldpwdlbl')[0].style.display = 'none';
-          $('input#oldpwdinput')[0].style.display = 'none';
+          $('div#alertlogin')[0].style.display = 'block';
+          $('div#alertlogin')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
+          $('label#oldpwddiv')[0].style.display = 'none';
         } else if (response_obj.authenticated.status_message == 'Password validated.') { 
           console.log("Successfully logged in.");
+          $('div#alertlogin')[0].style.display = 'none';
         } else {
-          $('div#alertpassword')[0].style.display = 'block';
-          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
+          $('div#alertlogin')[0].style.display = 'block';
+          $('div#alertlogin')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
           console.log('Something went wrong jwt: ' + response_obj.jwtauthenticated.status_message);
           console.log('Something went wrong auth: ' + response_obj.authenticated.status_message);
           console.log('Something went wrong: ' + response_obj.status_message);
@@ -179,7 +192,7 @@ async function change_password() {
         'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'Authorization': `Bearer ${storeJWT.JWT}`
       },
-      body: encodeURIComponent("username") + '=' + encodeURIComponent(formData.uname.value) + '&' 
+      body: encodeURIComponent("username") + '=' + encodeURIComponent(storeJWT.jwtuser) + '&' 
             + encodeURIComponent("oldpassword") + '=' + encodeURIComponent(formData2.oldpwd.value) + '&'
             + encodeURIComponent("newpassword") + '=' + encodeURIComponent(formData2.newpsw2.value)
   });
@@ -195,10 +208,19 @@ async function change_password() {
         //frmLogin.style.display = 'none'; 
         $('div#changepwdwindow')[0].style.display = 'none';
         $('div#alertpassword')[0].style.display = 'none';
-        btn_change_pwd.style.display = 'block';
+        btn_change_pwd.style.display = 'inline-flex';
         console.log(response_obj.jumpcloud_pw_set);
-        alert('Password changed successfully!');
+        jumpcloud_response_obj = JSON.parse(response_obj.jumpcloud_pw_set);
+        $('input[name="oldpwd"]').val(''); // Reset inputs
+        $('input[name="newpsw1"]').val(''); // Reset inputs
+        $('input[name="newpsw2"]').val(''); // Reset inputs
+        // if username returned is the correct username and the date password was changed is less than 10 minutes ago
+        if (jumpcloud_response_obj.username == storeJWT.jwtuser && ((Date.now() - Date.parse(jumpcloud_response_obj.password_date)) / 60000) <= 10){
+          alert('Password changed successfully!');
+        }
       } else {
+        $('div#alertpassword')[0].style.display = 'block';
+        $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.password_set.status_message+'</p>';
         console.log('Something went wrong password_set: ' + response_obj.password_set.status_message);
         console.log('Something went wrong jumpcloud: ' + response_obj.jumpcloud_pw_set);
         console.log('Something went wrong: ' + response_obj.status_message);
@@ -215,12 +237,28 @@ passwordform.addEventListener('submit', async (e) => {
   change_password();
 });
 
-btn_change_pwd.addEventListener('click', function (e){
+password_button.addEventListener('click', function (e){
   $('div#changepwdwindow')[0].style.display = 'block';
-  $('label#oldpwdlbl')[0].style.display = 'block';
-  $('input#oldpwdinput')[0].style.display = 'block';
+  $('div#oldpwddiv')[0].style.display = 'flex';
 });
 
+closelogin.addEventListener('click', function (e){
+  $('div#loginwindow')[0].style.display = 'none';
+});
+
+closepassword.addEventListener('click', function (e){
+  $('div#changepwdwindow')[0].style.display = 'none';
+});
+
+logout_button.addEventListener('click', function (e){
+  $('a#a_logout_wrapper')[0].style.display = 'none';
+  $('a#userbutton')[0].style.display = 'inline-flex';
+  storeJWT.setJWT('');
+  storeJWT.setUser('');
+  btn_change_pwd.style.display = 'none';
+  $('div#welcome')[0].style.display = 'none';
+  $('div#welcome')[0].innerHTML = '';
+});
 /* // Need to create a form for changing the password
 btn_change_pwd.addEventListener('click', async (e) => {
   res = await fetch('api/v1/update_password.php', {

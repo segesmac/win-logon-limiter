@@ -1,15 +1,20 @@
+p {
+  font-family: Arial, Helvetica, sans-serif;
+}
 #timetable {
   padding: 5px;
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 30px;
 }
-#adminconsolebutton, #userbutton {
-  width: 150px;
+#menu {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 30px;
+}
+div.head {
+  width: 180px;
   text-align: center;
-  margin-left: auto;
-  margin-right: 10px;
-  margin-top: 10px;
   padding: 5px;
   border: 2px solid black;
   font-family: Arial, Helvetica, sans-serif;
@@ -18,20 +23,83 @@
   background-color: dimgrey;
   font-weight: bold;
 }
-#adminconsolebutton:hover {
+div.head:hover {
   background-color:grey;
 }
-#adminconsolebutton:active {
+div.head:active {
   background-color:darkcyan;
 }
-#userbutton:hover {
+div.alertwindow {
+  width: max-content;
+  height: max-content;
+  position: fixed;
+  background-color:aliceblue;
+  padding: 10px 30px;
+  border: 2px solid black;
+  inset: 0px;
+  margin: 50px auto;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+div.alertwindow h2 {
+  margin-top: -10px;
+}
+div.close {
+  user-select: none;
+  text-align: right;
+  border: 2px solid black;
+  width: max-content;
+  padding: 0px 4px;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: dimgrey;
+  color: white;
+  margin-left: auto;
+  margin-right: -20px;
+}
+div.close:hover {
+  cursor: pointer;
   background-color:grey;
 }
-#userbutton:active {
+div.close:active {
   background-color:darkcyan;
 }
-a {
+a.head {
   text-decoration: none;
+  width: 194px;
+  margin-left: 10px;
+  margin-top: 10px;
+  display: inline-flex;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+form button {
+  width: max-content;
+  padding: 5px 20px;
+  align-self: center;
+  border: 2px solid black;
+  background-color: dimgrey;
+  color: white;
+  font-weight: bold;
+}
+form button:hover {
+  cursor: pointer;
+  background-color:grey;
+}
+form button:active {
+  background-color:darkcyan;
+}
+div.inputoption {
+  display: flex;
+  padding: 10px;
+}
+div.inputoption label {
+  padding: 10px;
+}
+div.inputoption input {
+  margin-left: auto;
 }
 table, th, td {
   border: 2px solid;
