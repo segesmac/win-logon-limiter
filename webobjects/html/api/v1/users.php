@@ -109,8 +109,10 @@ function insert_user( $username = "" # jdoe
 		$stmt = mysqli_stmt_init($conn);
 		if (mysqli_stmt_prepare($stmt,
 		"INSERT INTO `usertable` (`usertimetableid`,`username`) 
-		SELECT `usertimetableid`, `username` 
-		FROM `usertimetable` WHERE username = ?
+		SELECT * FROM (
+			SELECT `usertimetableid`, `username` 
+			FROM `usertimetable` WHERE username = ?
+		) AS tmp
 		WHERE NOT EXISTS (
 			SELECT username FROM usertable WHERE username = ?
 			) 
