@@ -64,6 +64,15 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
             $response[]=$row;
         }
         $has_valid_credentials = false;
+        if (strlen($newpassword) < 4) {
+            $response = array(
+                'status' => 0,
+                'status_message' => "Password must be at least 4 characters!"
+            );
+            $return_response["password_set"] = $response;
+            $return_response["jumpcloud_pw_set"] = $response;
+            die(json_encode($return_response));
+        }
         
         if (count($response) == 1 && $username != ""){
             $password_hash = $response[0]['passwordhash'];
@@ -78,7 +87,7 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
             } else {
                 $response = array(
                     'status' => 0,
-                    'status_message' => "Old password incorrect or you are not an admin!"
+                    'status_message' => "Old password incorrect!"
                 );
                 $return_response["password_set"] = $response;
                 $return_response["jumpcloud_pw_set"] = $response;
@@ -109,7 +118,8 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
                     $user_obj = json_decode($user_obj_json, true);
                     if ($user_obj['totalCount'] == 1){
                         $user_id = $user_obj['results'][0]['id'];
-                        $curl_data = '{"password": "'.$newpassword.'"}';
+                        $password_obj = array( 'password' => $newpassword); // Creating an object to convert into JSON, to avoid injection attacks
+                        $curl_data = json_encode($password_obj);
                         $jumpcloud_response = curl_api('PUT', $api_url.'/systemusers/'.$user_id.'?fullValidationDetails=password', $curl_data);
                     } else {
                         $jumpcloud_response = array(
