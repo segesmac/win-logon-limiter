@@ -48,7 +48,7 @@ Write-Output "RESULT:"
 Write-Output $result
 if ($null -ne $result.name){
     $decode = [System.Convert]::FromBase64String($result.content)
-    $build_version_stub = [System.Text.Encoding]::UTF8.GetString($decode)
+    $build_version_stub = [System.Text.Encoding]::UTF8.GetString($decode).Trim()
 }
 
 if ($null -eq $version_number){
