@@ -7,11 +7,12 @@ $ErrorActionPreference = 'Stop'
 
 # Need to put everything into a try-catch here so we can capture all the error output and output it to stdout correctly
 try {
-    Write-Output 'Running tasks...'
+    Write-Output "Running tasks from $($PWD.Path)..."
     # Select all ps1 files in task folder that begin with more than one digit followed by a '-'
     # We'll ignore files named starting with anything other than at least 2 digits
     $task_files = $(Get-ChildItem $folder_of_tasks | Where-Object { $_.Name -match '^\d\d+p*-.*\.ps1$' } | Sort-Object Name | Select-Object FullName).FullName
-
+    Write-Output "Found the following files to run:"
+    Write-Output $task_files
     # We can also run tasks in parallel if we wish (circumventing the need for complicated yaml files)
     function read_parallel_jobs {
         # Let's get the output from all jobs running in parallel
