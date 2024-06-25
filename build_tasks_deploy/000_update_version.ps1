@@ -10,7 +10,7 @@ if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
 
-$version_file_name = "version-$product$branch_label.txt"
+$version_file_name = "version$product-$branch_label.txt"
 
 # Set Headers
 $headers = @{
