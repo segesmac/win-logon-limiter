@@ -1,5 +1,5 @@
 # Set the base API endpoint
-$apiUrl = "https://chocolatey.segesman.us"
+$apiUrl = "http://chocolatey.segesman.us"
 $feedName = "chocolatey"
 $apiKey = $env:CHOCO_API_KEY
 $folderPath = "../choco_package"
