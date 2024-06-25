@@ -159,7 +159,7 @@ async function authenticate() {
           $('div#changepwdwindow')[0].style.display = 'block';
           $('div#alertlogin')[0].style.display = 'block';
           $('div#alertlogin')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
-          $('label#oldpwddiv')[0].style.display = 'none';
+          $('div#oldpwddiv')[0].style.display = 'none';
         } else if (response_obj.authenticated.status_message == 'Password validated.') { 
           console.log("Successfully logged in.");
           $('div#alertlogin')[0].style.display = 'none';
