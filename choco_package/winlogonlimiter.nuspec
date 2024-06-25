@@ -12,7 +12,7 @@
     <summary>WinLogOnLimiter is a tool that allows one to limit the time a user is allowed to be logged onto a windows machine.</summary>
     <releaseNotes>Version __VERSION__</releaseNotes>
     <tags>winlogonlimiter</tags>
-    <projectSourceUrl>https://github.com/segesmac/winlogonlimiter</projectSourceUrl>
+    <!--<projectSourceUrl>https://github.com/segesmac/winlogonlimiter</projectSourceUrl>-->
     <dependencies>
       <dependency id="NSSM" version="2.24.0" />
     </dependencies>
