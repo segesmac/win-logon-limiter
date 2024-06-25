@@ -228,7 +228,7 @@ deploy-choco-job:
   tags:
     - docker
   image:
-    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
+    name: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './task_runner.ps1 build_tasks_choco'

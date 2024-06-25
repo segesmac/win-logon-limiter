@@ -10,7 +10,7 @@ foreach ($nupkgFile in $nupkgFiles) {
     $fileName = $nupkgFile.Name
     #$packageName = $nupkgFile.BaseName
     Write-Output "Attempting to push '$folderPath/$fileName'"
-    nuget push "$folderPath/$fileName" -ApiKey "$apiKey" -Source "$apiUrl/nuget/$feedName/" -NonInteractive -Verbosity detailed
+    dotnet nuget push "$folderPath/$fileName" -k "$apiKey" -s "$apiUrl/nuget/$feedName/"
     #if ($result.StatusCode -eq 200) {
     #    Write-Host "Package '$packageName' uploaded successfully."
     #} else {
