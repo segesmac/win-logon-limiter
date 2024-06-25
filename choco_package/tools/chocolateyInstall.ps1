@@ -74,7 +74,7 @@ Write-Host "Installing service: $serviceName"
 $powershellPath = ( Get-Command powershell ).Source
 $service_ps1 = join-path $serviceInstallationDirectory "heartbeat.ps1"
 $service_args = '-ExecutionPolicy Bypass -NoProfile -File "{0}"' -f $service_ps1
-& $wrapperExe install $serviceName "$powershellPath $service_args agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
+& $wrapperExe install $serviceName "$powershellPath" "$service_args agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
 & $wrapperExe set $serviceName AppStdout "$serviceLogDirectory\winlogonlimiter-output.log" | Out-Null
 & $wrapperExe set $serviceName AppStderr "$serviceLogDirectory\winlogonlimiter-error.log" | Out-Null
 & $wrapperExe set $serviceName AppRotateBytes 10485760 | Out-Null
