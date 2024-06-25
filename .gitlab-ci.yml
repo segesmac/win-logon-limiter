@@ -29,6 +29,12 @@ get-version-number-job:
   artifacts:
     reports:
       dotenv: build.env
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 get-version-number-client-job:
   stage: .pre
@@ -44,6 +50,13 @@ get-version-number-client-job:
   artifacts:
     reports:
       dotenv: build.env
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - task_runner.ps1
+        - build_tasks_choco/**/*
+        - choco_package/**/*
 
 unit-test-job:
   stage: test
@@ -59,6 +72,12 @@ unit-test-job:
       junit: webobjects/phpunit-report.xml
   retry: 2
   needs: []
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 cron-build-job:
   stage: build
@@ -77,6 +96,12 @@ cron-build-job:
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
   needs: ["get-version-number-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 cron-build-arm-job:
   stage: build
@@ -102,6 +127,12 @@ cron-build-arm-job:
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
   needs: ["get-version-number-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 cron-manifest-job:
   stage: build
@@ -127,6 +158,12 @@ cron-manifest-job:
     - docker manifest push $DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER
   retry: 2
   needs: ["get-version-number-job","cron-build-arm-job","cron-build-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 build-job:
   stage: build
@@ -146,6 +183,12 @@ build-job:
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
   needs: ["get-version-number-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 build-arm-job:
   stage: build
@@ -172,6 +215,12 @@ build-arm-job:
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
   needs: ["get-version-number-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 manifest-job:
   stage: build
@@ -196,6 +245,12 @@ manifest-job:
     - docker manifest push $DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER
   retry: 2
   needs: ["get-version-number-job","build-arm-job","build-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 #int-test-job:  # probably need to set up a windows machine running the client and have it connect to the db for testing
 int-test-job-linux:      # This job runs integration testing for the linux portion of this
@@ -222,6 +277,12 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
       junit: webobjects/phpunit-report.xml
   retry: 2
   needs: ["get-version-number-job","build-job","cron-build-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 deploy-choco-job:
   stage: deploy
@@ -235,6 +296,11 @@ deploy-choco-job:
   needs: ["get-version-number-client-job"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+      changes:
+        - .gitlab-ci.yml
+        - task_runner.ps1
+        - build_tasks_choco/**/*
+        - choco_package/**/*
 
 update-version-number-job:
   stage: deploy
@@ -245,6 +311,13 @@ update-version-number-job:
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1'
+  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
 update-version-number-client-job:
   stage: deploy
@@ -256,6 +329,13 @@ update-version-number-client-job:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1 -product "-wllclient"'
   needs: ["get-version-number-client-job","deploy-choco-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      changes:
+        - .gitlab-ci.yml
+        - task_runner.ps1
+        - build_tasks_choco/**/*
+        - choco_package/**/*
 
 deploy-dev-job:
   stage: deploy
@@ -299,6 +379,10 @@ deploy-dev-job:
   needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
   
 stop-dev:
   stage: deploy
@@ -344,4 +428,8 @@ deploy-job:      # This job runs in the deploy stage.
   needs: ["get-version-number-job","manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^release.*/'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
 
