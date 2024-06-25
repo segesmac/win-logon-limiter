@@ -10,7 +10,7 @@ foreach ($nupkgFile in $nupkgFiles) {
     $fileFullPath = $nupkgFile.FullName
     #$packageName = $nupkgFile.BaseName
 
-    nuget push $fileFullPath -k $apiKey -s "$apiUrl/nuget/$feedName/"
+    nuget push $fileFullPath -ApiKey $apiKey -Source "$apiUrl/nuget/$feedName/" -NonInteractive
     #if ($result.StatusCode -eq 200) {
     #    Write-Host "Package '$packageName' uploaded successfully."
     #} else {
