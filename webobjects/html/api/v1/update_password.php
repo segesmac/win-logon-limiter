@@ -79,8 +79,7 @@ function update_password($jwt_username, $jwt_isadmin, $username = "", $newpasswo
             if ($password_hash == NULL){
                 # No need to compare if there was never a password to begin with
                 $has_valid_credentials = true;
-            } 
-            if ($jwt_isadmin == 1){ # Don't need to verify old password if an admin is changing the password
+            } elseif ($jwt_isadmin == 1){ # Don't need to verify old password if an admin is changing the password
                 $has_valid_credentials = true;
             } elseif (password_verify($oldpassword,$password_hash)){
                 $has_valid_credentials = true;
