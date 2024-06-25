@@ -17,4 +17,8 @@
       <dependency id="NSSM" version="2.24.0" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="tools/*" target="tools" />
+    <file src="binaries/*" target="binaries" />
+  </files>
 </package>
