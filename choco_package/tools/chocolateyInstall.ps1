@@ -49,7 +49,7 @@ Set-ItemProperty $registryPath\winlogonlimiter EventMessageFile "C:\Windows\Micr
 $command = ('$now = Get-Date; dir "{0}" | where {{$_.LastWriteTime -le $now.AddDays(-7)}} | del -whatif' -f $serviceLogDirectory)
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -command $($command)"
 $trigger = New-ScheduledTaskTrigger -Daily -At 9am
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "winlogonlimiterLogrotate" -Description "Log rotation for winlogonlimiter"
+Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "winlogonlimiterLogrotate" -Description "Log rotation for winlogonlimiter" -Force
 
 #Uninstall service if it already exists. Stops the service first if it's running
 $service = Get-Service $serviceName -ErrorAction SilentlyContinue
@@ -74,7 +74,7 @@ Write-Host "Installing service: $serviceName"
 $powershellPath = ( Get-Command powershell ).Source
 $service_ps1 = join-path $serviceInstallationDirectory "heartbeat.ps1"
 $service_args = '-ExecutionPolicy Bypass -NoProfile -File "{0}"' -f $service_ps1
-& $wrapperExe install $serviceName "$powershellPath $service_args" "agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
+& $wrapperExe install $serviceName "$powershellPath $service_args agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
 & $wrapperExe set $serviceName AppStdout "$serviceLogDirectory\winlogonlimiter-output.log" | Out-Null
 & $wrapperExe set $serviceName AppStderr "$serviceLogDirectory\winlogonlimiter-error.log" | Out-Null
 & $wrapperExe set $serviceName AppRotateBytes 10485760 | Out-Null
