@@ -59,7 +59,7 @@ try {
                 $last_result = $LASTEXITCODE
                 Write-Output "Last Exit Code: $last_result"
 
-                Write-Output "------------------End parallel task $($parallel_file_obj.Name). Ran for $($time_elapsed.ToString('hh:mm:ss'))"
+                Write-Output "------------------End parallel task $($parallel_file_obj.Name). Ran for $($time_elapsed.ToString())"
 
                 if ($last_result -ne 0 -and $null -ne $last_result){
                     throw "$($parallel_file_obj.Name) FAILED with exit code $last_result"
@@ -100,7 +100,7 @@ try {
             $last_result = $LASTEXITCODE
             Write-Output "Last Exit Code: $last_result"
 
-            Write-Output "------------------End task $($task_file.Name). Ran for $($time_elapsed.ToString('hh:mm:ss'))"
+            Write-Output "------------------End task $($task_file.Name). Ran for $($time_elapsed.ToString())"
 
             if ($last_result -ne 0 -and $null -ne $last_result){
                 throw "$($task_file.Name) FAILED with exit code $last_result"
