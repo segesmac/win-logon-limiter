@@ -30,6 +30,21 @@ get-version-number-job:
     reports:
       dotenv: build.env
 
+get-version-number-client-job:
+  stage: .pre
+  image:
+    #name: mcr.microsoft.com/powershell:lts-7.2-ubuntu-22.04
+    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
+  tags:
+    - docker
+  script:
+    - pwsh -command 'Get-ChildItem "env:"'
+    - pwsh -command './build_tasks_pre/000_get_version.ps1 -product "-wllclient"'
+  retry: 2
+  artifacts:
+    reports:
+      dotenv: build.env
+
 unit-test-job:
   stage: test
   tags:
@@ -208,6 +223,19 @@ int-test-job-linux:      # This job runs integration testing for the linux porti
   retry: 2
   needs: ["get-version-number-job","build-job","cron-build-job"]
 
+deploy-choco-job:
+  stage: deploy
+  tags:
+    - docker
+  image:
+    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
+  script:
+    - pwsh -command 'Get-ChildItem "env:"'
+    - pwsh -command './task-runner build_tasks_choco'
+  needs: ["get-version-number-client-job"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+
 update-version-number-job:
   stage: deploy
   image:
@@ -217,6 +245,17 @@ update-version-number-job:
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1'
+
+update-version-number-client-job:
+  stage: deploy
+  image:
+    name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
+  tags:
+    - docker
+  script:
+    - pwsh -command 'Get-ChildItem "env:"'
+    - pwsh -command './build_tasks_deploy/000_update_version.ps1 -product "-wllclient"'
+  needs: ["deploy-choco-job"]
 
 deploy-dev-job:
   stage: deploy

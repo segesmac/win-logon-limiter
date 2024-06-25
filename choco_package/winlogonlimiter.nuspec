@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>winlogonlimiter</id>
-    <version>1.0.1</version>
+    <version>__VERSION__</version>
     <title>WinLogOnLimiter</title>
     <authors>Christopher Segesman</authors>
     <owners>segesmac</owners>
@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>WinLogOnLimiter is a tool that allows one to limit the time a user is allowed to be logged onto a windows machine.</description>
     <summary>WinLogOnLimiter is a tool that allows one to limit the time a user is allowed to be logged onto a windows machine.</summary>
-    <releaseNotes>Version 1.0.1</releaseNotes>
+    <releaseNotes>Version __VERSION__</releaseNotes>
     <tags>winlogonlimiter</tags>
     <projectSourceUrl>https://github.com/segesmac/winlogonlimiter</projectSourceUrl>
     <dependencies>

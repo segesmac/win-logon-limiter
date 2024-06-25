@@ -6,7 +6,7 @@ while ($true){
 		param (
 		  $message,
 		  $append = $true,
-		  $logfile = 'C:\Scripts\logs\winlogonlimiter_log.txt'
+		  $logfile = "$PSScriptRoot\logs\winlogonlimiter_log.txt"
 		)
 		if ($message -ne $global:last_message){
 			$global:last_message = $message
@@ -92,7 +92,7 @@ while ($true){
 				Mandatory = $false,
 				Position = 0,
 				ValueFromPipeline = $True)]
-				[string]$scripts_folder = "C:\Scripts"
+				[string]$scripts_folder = $PSScriptRoot
 				)
 		if ($env:USERDOMAIN -eq $env:COMPUTERNAME){
 			# Gets the Access Conrol List from the scripts folder
@@ -134,7 +134,7 @@ while ($true){
 
 	}
 
-	$scripts_folder = Split-Path $MyInvocation.MyCommand.Path -Parent # The folder in which heartbeat.ps1 resides
+	$scripts_folder = $PSScriptRoot # The folder in which heartbeat.ps1 resides
 	$config_folder = Join-Path $scripts_folder 'config'
 	if (!(Test-Path $config_folder)){
 		New-Item -ItemType Directory -Path "$config_folder"

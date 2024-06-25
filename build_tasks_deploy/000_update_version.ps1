@@ -1,4 +1,8 @@
 # Purpose: update the latest version number
+param (
+    $product = ''
+)
+
 $branch_label= $env:BRANCH_LABEL
 $version_branch = 'version_dev'
 $project_name = $env:CI_PROJECT_NAME
@@ -6,7 +10,7 @@ if ($branch_label.StartsWith('release')){
     $version_branch = 'version_release'
 }
 
-$version_file_name = "version-$branch_label.txt"
+$version_file_name = "version-$product$branch_label.txt"
 
 # Set Headers
 $headers = @{
@@ -26,7 +30,7 @@ $data = @{
     branch = $version_branch;
 };
 # If this is true, we should be updating an existing file
-if ($env:VERSION_SHA -ne $null){
+if ($null -ne $env:VERSION_SHA){
     $data = @{
         message = "Updating version number to $env:VERSION_NUMBER";
         content = $version_number_base64;
