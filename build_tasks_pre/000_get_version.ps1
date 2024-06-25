@@ -74,7 +74,7 @@ if ($version_base.StartsWith($build_version_stub)){
 } else {
     # Set build number to 0
     Write-Output 'Setting build number to 0'
-    $version_base = "$build_version_stub."
+    $version_base = "$($build_version_stub.Trim())."
     $new_build_number = 0
 }
 # Update the uri and version number
