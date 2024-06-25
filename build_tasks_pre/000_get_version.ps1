@@ -27,7 +27,7 @@ Write-Output $result
 $version_number = $null
 if ($null -ne $result.name){
     $decode = [System.Convert]::FromBase64String($result.content)
-    $version_number = [System.Text.Encoding]::UTF8.GetString($decode)
+    $version_number = [System.Text.Encoding]::UTF8.GetString($decode).Trim()
     $version_number_sha = $result.sha
 }
 
