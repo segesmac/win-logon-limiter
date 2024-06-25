@@ -157,8 +157,8 @@ async function authenticate() {
           $('div#loginwindow')[0].style.display = 'none';
           btn_change_pwd.style.display = 'inline-flex';
           $('div#changepwdwindow')[0].style.display = 'block';
-          $('div#alertlogin')[0].style.display = 'block';
-          $('div#alertlogin')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
+          $('div#alertpassword')[0].style.display = 'block';
+          $('div#alertpassword')[0].innerHTML = '<p>'+response_obj.authenticated.status_message+'</p>';
           $('div#oldpwddiv')[0].style.display = 'none';
         } else if (response_obj.authenticated.status_message == 'Password validated.') { 
           console.log("Successfully logged in.");
@@ -208,6 +208,7 @@ async function change_password() {
         //frmLogin.style.display = 'none'; 
         $('div#changepwdwindow')[0].style.display = 'none';
         $('div#alertpassword')[0].style.display = 'none';
+        $('div#alertpassword')[0].innerHTML = '';
         btn_change_pwd.style.display = 'inline-flex';
         console.log(response_obj.jumpcloud_pw_set);
         jumpcloud_response_obj = JSON.parse(response_obj.jumpcloud_pw_set);
