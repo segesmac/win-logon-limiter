@@ -231,7 +231,7 @@ deploy-choco-job:
     name: ${MICROSOFT_REGISTRY}powershell:lts-7.2-ubuntu-22.04
   script:
     - pwsh -command 'Get-ChildItem "env:"'
-    - pwsh -command './task-runner.ps1 build_tasks_choco'
+    - pwsh -command './task_runner.ps1 build_tasks_choco'
   needs: ["get-version-number-client-job"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
