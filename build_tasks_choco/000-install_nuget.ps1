@@ -1,2 +1,2 @@
-sudo apt-get update -y
-sudo apt-get install -y nuget
+apt update
+apt install -y nuget
