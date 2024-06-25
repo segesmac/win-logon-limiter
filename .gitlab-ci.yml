@@ -228,7 +228,7 @@ deploy-choco-job:
   tags:
     - docker
   image:
-    name: mcr.microsoft.com/dotnet/sdk:8.0
+    name: ${MICROSOFT_REGISTRY}dotnet/sdk:8.0
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './task_runner.ps1 build_tasks_choco'
@@ -255,7 +255,7 @@ update-version-number-client-job:
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1 -product "-wllclient"'
-  needs: ["deploy-choco-job"]
+  needs: ["get-version-number-client-job","deploy-choco-job"]
 
 deploy-dev-job:
   stage: deploy
