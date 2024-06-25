@@ -9,7 +9,8 @@ $binaries_folder = Join-Path $choco_dir "binaries"
 New-Item -ItemType Directory $binaries_folder -Force
 Copy-Item ../clientobjects/scripts/heartbeat.ps1 $choco_zip_folder/heartbeat.ps1
 Copy-Item -Recurse ../clientobjects/scripts/config $choco_zip_folder/
-Compress-Archive -Path $choco_zip_folder -DestinationPath "$binaries_folder/$($env:VERSION_NUMBER)_winlogonlimiter.zip"
+Write-Output "Zipping $choco_zip_folder/* to $binaries_folder/$($env:VERSION_NUMBER)_winlogonlimiter.zip"
+Compress-Archive -Path "$choco_zip_folder/*" -DestinationPath "$binaries_folder/$($env:VERSION_NUMBER)_winlogonlimiter.zip"
 $file_hash = Get-FileHash -Algorithm SHA256 "$binaries_folder/$($env:VERSION_NUMBER)_winlogonlimiter.zip"
 "$($file_hash.Hash)  $($env:VERSION_NUMBER)_winlogonlimiter.zip" | Out-File "$binaries_folder/$($env:VERSION_NUMBER)_SHA256SUMS"
 
