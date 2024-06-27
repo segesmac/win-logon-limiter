@@ -417,25 +417,82 @@ stop-dev:
         - deployment/**/*
         - webobjects/**/*
 
-deploy-job:      # This job runs in the deploy stage.
+deploy-prod-job:
   stage: deploy
   tags:
     - docker
+  image:
+    name: ${DOCKER_REGISTRY}ubuntu:latest
+  environment:
+    name: timeleft.us
+    url: https://timeleft.us/
+    on_stop: stop-prod
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo 'SendEnv DB_PASSWD' > ~/.ssh/config
+    - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_IMAGE_CRON' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
+    - echo 'SendEnv CRON_SSH_KNOWN_HOSTS' >> ~/.ssh/config
+    - echo 'SendEnv CRON_SSH_PRIVATE_KEY' >> ~/.ssh/config
+    - echo 'SendEnv WEB_JC_API_KEY' >> ~/.ssh/config
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
-    - docker pull "$DOCKER_IMAGE"
-    - DOCKER_IMAGE_NEW="segesmac/$CI_PROJECT_NAME"
-    - docker tag $DOCKER_IMAGE $DOCKER_IMAGE_NEW:$VERSION_NUMBER
-    - docker tag $DOCKER_IMAGE $DOCKER_IMAGE_NEW:latest
-    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
-    - docker push $DOCKER_IMAGE_NEW:$VERSION_NUMBER
-    - docker push $DOCKER_IMAGE_NEW:latest
-  needs: ["get-version-number-job","manifest-job","int-test-job-linux"]
+    - export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
+    - CRON_SUFFIX="-cron"
+    - export DOCKER_IMAGE_CRON="$DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER"
+    - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
+    - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
+    - scp $CRON_SSH_KNOWN_HOSTS segesmac@dev.timeleft.us:~/deployment/ssh_known_hosts_copied.txt
+    - scp $CRON_SSH_PRIVATE_KEY segesmac@dev.timeleft.us:~/deployment/ssh_private_key_copied.txt
+    - scp $WEB_JC_API_KEY segesmac@dev.timeleft.us:~/deployment/web_jc_api_key_copied.txt
+    - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
+    #- ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
+    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt -a web_jc_api_key_copied.txt'
+  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^release.*/'
       changes:
         - .gitlab-ci.yml
         - deployment/**/*
         - webobjects/**/*
-
+  
+stop-prod:
+  stage: deploy
+  tags:
+    - docker
+  image:
+    name: ${DOCKER_REGISTRY}ubuntu:latest
+  environment:
+    name: timeleft.us
+    action: stop
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo 'SendEnv DB_PASSWD' > ~/.ssh/config
+    - echo 'SendEnv DB_RT_PASSWD' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_IMAGE' >> ~/.ssh/config
+    - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
+  script:
+    #- export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
+    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; docker-compose down'
+  when: manual
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^release.*/'
+      changes:
+        - .gitlab-ci.yml
+        - deployment/**/*
+        - webobjects/**/*
