@@ -295,7 +295,7 @@ deploy-choco-job:
     - pwsh -command './task_runner.ps1 build_tasks_choco'
   needs: ["get-version-number-client-job"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"
       changes:
         - .gitlab-ci.yml
         - task_runner.ps1
