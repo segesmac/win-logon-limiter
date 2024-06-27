@@ -1,7 +1,7 @@
 # Defaults
 $serviceName = "WinLogOnLimiter"
-$binariesPath = $(Join-Path (Split-Path -parent $MyInvocation.MyCommand.Definition) "..\binaries\")
-$toolsPath = (Split-Path -Parent $MyInvocation.MyCommand.Definition)
+$binariesPath = $(Join-Path $PSScriptRoot "..\binaries\")
+#$toolsPath = (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 $wrapperExe = "$env:ChocolateyInstall\bin\nssm.exe"
 $serviceInstallationDirectory = "C:\Scripts"
 $serviceLogDirectory = "$serviceInstallationDirectory\logs"
@@ -14,14 +14,14 @@ if (-not ($packageParameters)) {
   Write-Debug "No Package Parameters Passed in"
 }
 $service = Get-Service WinLogOnLimiter -ErrorAction SilentlyContinue
-if ($service -ne $null){
+if ($null -ne $service){
 	if ($service.Status -ne 'Stopped'){
 		Stop-Service WinLogOnLimiter
 	}
 }
 
 # winlogonlimiter related variables
-$app_version = '1.0.1'
+$app_version = '__VERSION__'
 $sourcePath = $(Join-Path $binariesPath "$($app_version)_winlogonlimiter.zip")
 
 # Create Service Directories
@@ -41,15 +41,15 @@ New-Item -Path $registryPath -Name winlogonlimiter -Force | Out-Null
 Set-ItemProperty $registryPath\winlogonlimiter EventMessageFile "C:\Windows\Microsoft.NET\Framework64\v2.0.50727\EventLogMessages.dll" | Out-Null
 
 # Set up task scheduler for log rotation
-$logrotate = ('%SYSTEMROOT%\System32\forfiles.exe /p \"{0}\" /s /m *.* /c \"cmd /c Del @path\" /d -7' -f "$serviceLogDirectory")
-SchTasks.exe /Create /SC DAILY /TN ""winlogonlimiterLogrotate"" /TR ""$($logrotate)"" /ST 09:00 /F | Out-Null
+#$logrotate = ('%SYSTEMROOT%\System32\forfiles.exe /p \"{0}\" /s /m *.* /c \"cmd /c Del @path\" /d -7' -f "$serviceLogDirectory")
+#SchTasks.exe /Create /SC DAILY /TN ""winlogonlimiterLogrotate"" /TR ""$($logrotate)"" /ST 09:00 /F | Out-Null
 
 # Set up task scheduler for log rotation. Only works for Powershell 4 or Server 2012R2 so this block can replace
 # using SchTasks.exe for registering services once machines have retired the older version of PS or upgraded to 2012R2
-#$command = ('$now = Get-Date; dir "{0}" | where {{$_.LastWriteTime -le $now.AddDays(-7)}} | del -whatif' -f $serviceLogDirectory)
-#$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -command $($command)"
-#$trigger = New-ScheduledTaskTrigger -Daily -At 9am
-#Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "winlogonlimiterLogrotate" -Description "Log rotation for winlogonlimiter"
+$command = ('$now = Get-Date; dir "{0}" | where {{$_.LastWriteTime -le $now.AddDays(-7)}} | del -whatif' -f $serviceLogDirectory)
+$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -command $($command)"
+$trigger = New-ScheduledTaskTrigger -Daily -At 9am
+Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "winlogonlimiterLogrotate" -Description "Log rotation for winlogonlimiter" -Force
 
 #Uninstall service if it already exists. Stops the service first if it's running
 $service = Get-Service $serviceName -ErrorAction SilentlyContinue
@@ -71,8 +71,10 @@ if ($service) {
 
 Write-Host "Installing service: $serviceName"
 # Install the service
-$service_exe = join-path $serviceInstallationDirectory "winlogonlimiter.exe"
-& $wrapperExe install $serviceName "$service_exe" "agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
+$powershellPath = ( Get-Command powershell ).Source
+$service_ps1 = join-path $serviceInstallationDirectory "heartbeat.ps1"
+$service_args = '-ExecutionPolicy Bypass -NoProfile -File "{0}"' -f $service_ps1
+& $wrapperExe install $serviceName "$powershellPath" "$service_args agent -ui -config-dir=$serviceConfigDirectory -data-dir=$serviceDataDirectory $packageParameters" | Out-Null
 & $wrapperExe set $serviceName AppStdout "$serviceLogDirectory\winlogonlimiter-output.log" | Out-Null
 & $wrapperExe set $serviceName AppStderr "$serviceLogDirectory\winlogonlimiter-error.log" | Out-Null
 & $wrapperExe set $serviceName AppRotateBytes 10485760 | Out-Null

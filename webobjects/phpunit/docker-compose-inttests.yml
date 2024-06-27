@@ -1,0 +1,43 @@
+services:
+   composer:
+     image: ${DOCKER_REGISTRY}composer:latest
+     volumes:
+      - ../:/app
+     environment:
+      - COMPOSER_CACHE_DIR=/app/var/cache/composer
+     restart: never
+
+   phpunit:
+     image: ${DOCKER_IMAGE}
+     restart: never
+     volumes:
+       - ../:/app
+     working_dir: /app
+     environment:
+       WLL_DB_PASSWORD_FILE: /run/secrets/db_password
+       WLL_JWT_SECRET_FILE: /run/secrets/web_jwt_secret
+       WLL_JC_API_KEY_FILE: /run/secrets/web_jc_api_key
+       TZ: America/Denver
+     secrets:
+       - db_password
+       - web_jwt_secret
+       - web_jc_api_key
+     networks:
+       - network1
+
+networks:
+  network1: # this network is the default name of the network created in the deployment folder docker-compose.yml file
+    name: deployment_default
+    external: true
+
+secrets:
+   db_password:
+     file: ../../deployment/db_password.txt
+   web_jwt_secret:
+     file: ../../deployment/web_jwt_secret.txt
+   web_jc_api_key:
+     file: ../../deployment/web_jc_api_key.txt
+
+
+
+# docker-compose -f docker_compose.yml up -d

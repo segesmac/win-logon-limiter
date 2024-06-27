@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+# Update passsword file
+echo "Updating password file"
+DB_PASSWORD=$(cat /run/secrets/db_password)
+sed -i "s/##DB_PASSWORD##/$DB_PASSWORD/g" /app/password.php
+echo "Updated password.php\n"
+echo "Setting up router ssh key"
+eval $(ssh-agent -s)
+cp $WLL_SSH_PRIVATE_KEY_FILE ~/.ssh/ssh_private_key.key
+chmod 400 ~/.ssh/ssh_private_key.key
+ssh-add ~/.ssh/ssh_private_key.key
+cp "$WLL_SSH_KNOWN_HOSTS_FILE" ~/.ssh/known_hosts
+chmod 644 ~/.ssh/known_hosts
+echo "Finished setting up router ssh"
+echo "Setting up crontab"
+crontab -u root /app/cron/crontab.txt
+echo "Finished setting up crontab"
+exec "$@"

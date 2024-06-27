@@ -37,189 +37,72 @@
    #}
    #phpinfo(32);
 ?>
-<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
-<style>
-table, th, td {
-  border: 2px solid;
-  padding: 5px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
-}
-th {
-  background: #ddd;
-}
-table {
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-}
-#internetstatus {
-  padding: 5px;
-  text-align: center;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 30px;
-}
-.on {
-  color: green;
-  background-color: lightgreen;
-  font-weight: bold;
-}
-.off {
-  color: red;
-  background-color: pink;
-  font-weight: bold;
-}
-</style>
+   <!-- Favicon stuff begin -->
+   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+   <link rel="manifest" href="/site.webmanifest">
+   <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+   <meta name="msapplication-TileColor" content="#da532c">
+   <meta name="theme-color" content="#ffffff">
+
+   <!-- Favicon stuff end -->
+   <script src="includes/jquery.min.js"></script>
+   <link rel="stylesheet" href="includes/style.css" />
+   
 </head>
 <body>
-<!--Your candidate is: <h1 id=list>-</h1> Make the locals proud.
-<h2 id=list2>-</h2> So-so-->
-<div id="timetable"></div>
-<div id="internetstatus"></div>
-<script>
-
-  // NOTE: window.RTCPeerConnection is "not a constructor" in FF22/23
-  var RTCPeerConnection = /*window.RTCPeerConnection ||*/ window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-
-  if (RTCPeerConnection) (function () {
-    var rtc = new RTCPeerConnection({iceServers:[]});
-    if (1 || window.mozRTCPeerConnection) {      // FF [and now Chrome!] needs a channel/stream to proceed
-        rtc.createDataChannel('', {reliable:false});
-    };
-    
-    rtc.onicecandidate = function (evt) {
-        // convert the candidate to SDP so we can run it through our general parser
-        // see https://twitter.com/lancestout/status/525796175425720320 for details
-        if (evt.candidate) grepSDP("a="+evt.candidate.candidate);
-    };
-    rtc.createOffer(function (offerDesc) {
-        grepSDP(offerDesc.sdp);
-        rtc.setLocalDescription(offerDesc);
-    }, function (e) { console.warn("offer failed", e); });
-    
-    
-    var addrs = Object.create(null);
-    addrs["0.0.0.0"] = false;
-    function updateDisplay(newAddr) {
-        if (newAddr in addrs) return;
-        else addrs[newAddr] = true;
-        var displayAddrs = Object.keys(addrs).filter(function (k) { return addrs[k]; });
-        document.getElementById('list').textContent = displayAddrs.join(" or perhaps ") || "n/a";
-    }
-    
-    function grepSDP(sdp) {
-        var hosts = [];
-        sdp.split('\r\n').forEach(function (line) { // c.f. http://tools.ietf.org/html/rfc4566#page-39
-            if (~line.indexOf("a=candidate")) {     // http://tools.ietf.org/html/rfc4566#section-5.13
-                var parts = line.split(' '),        // http://tools.ietf.org/html/rfc5245#section-15.1
-                    addr = parts[4],
-                    type = parts[7];
-                var candidate = parts[0].split(':')[1];
-                //if (type === 'host') updateDisplay(candidate);
-            } else if (~line.indexOf("c=")) {       // http://tools.ietf.org/html/rfc4566#section-5.7
-                var parts = line.split(' '),
-                    addr = parts[2];
-                //updateDisplay(addr);
-            }
-        });
-    }
-  })(); else {
-      document.getElementById('list').innerHTML = "<code>ifconfig | grep inet | grep -v inet6 | cut -d\" \" -f2 | tail -n1</code>";
-      document.getElementById('list').nextSibling.textContent = "In Chrome and Firefox your IP should display automatically, by the power of WebRTCskull.";
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  async function getTable(datastring_prev) {
-    $.getJSON( "api/v1/users.php", function( data ) {
-    var items = [];
-    var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
-    console.log(data);
-    data_to_parse = data.payload;
-    internet_on = false;
-    datastring = JSON.stringify(data);
-    if (data.status == 1 && datastring_prev != datastring){
-      console.log("Updating data");
-      $.each( data_to_parse, function( key, val ) {
-        var row_header = "";
-        var row = "";
-        if (val.timelimitminutes != "-1.00"){
-          $.each( val, function ( new_key, new_val) {
-            // Check list of columns to exclude from above and exclude them
-            if (!columns_to_exclude.includes(new_key)){ 
-              if (key == 0){
-                var column_header = "";
-                switch (new_key){
-                  case "username":
-                    column_header = "Username";
-                    break;
-                  case "lastlogon":
-                    column_header = "Last Logon";
-                    break;
-                  //case "timelimitminutes":
-                  //   column_header = "Time Limit (Minutes)";
-                  //   break;
-                  case "timeleftminutes":
-                     column_header = "Time Left (Minutes)";
-                     break;
-                  case "bonustimeminutes":
-                     column_header = "Bonus Time (Minutes)";
-                     break;
-                  case "bonuscounters":
-                     column_header = "Counters Owed";
-                     break;
-                  default:
-                    column_header = "UNDEFINED";
-                }
-                row_header +=  "<th>" + column_header + "</th>";
-              };
-              if (new_key != "username"){
-                row += "<td>" + new_val.split(".")[0] + "</td>";
-              } else {
-                row += "<td>" + new_val + "</td>";
-              }
-            // Check to see if the computername column is populated with something - that means the internet is on
-            } else if (new_key == "computername" && new_val != null){
-              internet_on = true;
-            }
-          });
-          if (key == 0){
-            items.push( "<tr>" + row_header + "</tr>" );
-          }
-          items.push( "<tr>" + row + "</tr>" );
-        }
-      });
-      $("#timetable").html($( "<table/>", {
-        "class": "my-new-list",
-        html: items.join( "" )
-      }));
-      // Set the internet status div
-      if (internet_on){
-        $("#internetstatus").html("Internet is <span class=\"on\">ON</span>");
-      } else {
-        $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
-      }
-    }
-    });
-    console.log("Sleeping 10 seconds...");
-    await sleep(10000);
-    console.log("Done sleeping...");
-    
-    getTable(datastring);
-    //})();
-  }
-
-  //getTable();
-  //count = 0;
-  //while (count<=10) {
-
-    getTable("");
-    //console.log("Sleeping 10 seconds...");
-    //await sleep(10000);
-    //console.log("Done sleeping...");
-  //}
-</script>
+   <!--Your candidate is: <h1 id=list>-</h1> Make the locals proud.
+   <h2 id=list2>-</h2> So-so-->
+   <div id="menu">
+      <div id="welcome" style="display: none;"></div>
+      <a href="#" id="btn_change_pwd" class="head" style="display: none;"><div class="head" id="password_button">Change Password</div></a>
+      <a href="#" id="userbutton" class="head"><div class="head" id="user_button">User Login</div></a>
+      <a href="#" id="a_logout_wrapper" class="head" style="display: none;"><div class="head" id="logout_button">Logout</div></a>
+   </div>
+   <div id="alerts" style="display: none;"></div>
+   <div id="loginwindow" class="alertwindow" style="display: none;">
+      <div id="closelogin" class="close">X</div>
+      <h2>Login</h2>
+      <div id="alertlogin" style="display: none;"></div>
+      <form method="post" action="#" id="loginform">
+         <div class="inputoption">
+            <label for="uname"><b>Username:</b></label>
+            <input type="text" placeholder="Enter Username" name="uname" list="userlist" required />
+            <datalist id="userlist"></datalist>
+         </div>
+         <div class="inputoption">
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="psw">
+         </div>
+         <button id="loginbutton" type="submit">Login</button>
+      </form>
+   </div>
+   <div id="changepwdwindow" class="alertwindow" style="display: none;">
+      <div id="closepassword" class="close">X</div>
+      <h2>Change Password</h2>
+      <div id="alertpassword" style="display: none;"></div>
+      <form method="post" action="#" id="passwordform">
+         <div class="inputoption" id="oldpwddiv">
+            <label for="oldpwd" id="oldpwdlbl"><b>Old Password</b></label>
+            <input type="password" id="oldpwdinput" placeholder="Enter Old Password" name="oldpwd" />
+         </div>
+         <div class="inputoption">
+            <label for="newpsw1"><b>New Password</b></label>
+            <input type="password" placeholder="Enter New Password" name="newpsw1" required>
+         </div>
+         <div class="inputoption">
+            <label for="newpsw2"><b>Retype New Password</b></label>
+            <input type="password" placeholder="Reenter New Password" name="newpsw2" required>
+         </div>
+         <button id="changepwdbutton" type="submit">Submit</button>
+      </form>
+   </div>
+   <div id="timetable">No data received.</div>
+   <div id="internetstatus">No data received.</div>
+   <script src="includes/timetable.js"></script>
 </body>
-
+<footer>
+   <div><p>Version Number: __VERSION__</p></div>
+</footer>
 </html>

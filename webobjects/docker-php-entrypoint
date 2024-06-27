@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+# Update passsword file
+echo "Updating password file"
+DB_PASSWORD=$(cat /run/secrets/db_password)
+sed -i "s/##DB_PASSWORD##/$DB_PASSWORD/g" /var/www/password.php
+echo "Updated password.php\n"
+# Update db if needed
+/tools/dbupdater/update_db.php
+echo "finished running db updater!\n"
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+	set -- apache2-foreground "$@"
+fi
+
+exec "$@"

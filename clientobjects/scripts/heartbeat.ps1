@@ -6,7 +6,7 @@ while ($true){
 		param (
 		  $message,
 		  $append = $true,
-		  $logfile = 'C:\Scripts\logs\winlogonlimiter_log.txt'
+		  $logfile = "$PSScriptRoot\logs\winlogonlimiter_log.txt"
 		)
 		if ($message -ne $global:last_message){
 			$global:last_message = $message
@@ -66,8 +66,8 @@ while ($true){
 		ForEach($c in $computer) {
 			# Parse 'query session' and store in $sessions:
 			$sessions = query session /server:$c
-				1..($sessions.count -1) | % {
-					$temp = "" | Select Computer,SessionName, Username, Id, State, Type, Device
+				1..($sessions.count -1) | ForEach-Object {
+					$temp = "" | Select-Object Computer,SessionName, Username, Id, State, Type, Device
 					$temp.Computer = $c
 					$temp.SessionName = $sessions[$_].Substring(1,18).Trim()
 					$temp.Username = $sessions[$_].Substring(19,20).Trim()
@@ -92,7 +92,7 @@ while ($true){
 				Mandatory = $false,
 				Position = 0,
 				ValueFromPipeline = $True)]
-				[string]$scripts_folder = "C:\Scripts"
+				[string]$scripts_folder = $PSScriptRoot
 				)
 		if ($env:USERDOMAIN -eq $env:COMPUTERNAME){
 			# Gets the Access Conrol List from the scripts folder
@@ -100,9 +100,9 @@ while ($true){
 			$acl = Get-Acl $scripts_folder
 
 			# Check to see if the correct permissions are applied already
-			$admin_access = $acl.Access | Where IsInherited -eq $false | Where FileSystemRights -eq "FullControl" | Where IdentityReference -eq "BUILTIN\Administrators"
+			$admin_access = $acl.Access | Where-Object IsInherited -eq $false | Where-Object FileSystemRights -eq "FullControl" | Where-Object IdentityReference -eq "BUILTIN\Administrators"
 
-			$superuser_access = $acl.Access | Where IsInherited -eq $false | Where FileSystemRights -eq "FullControl" | Where IdentityReference -eq "$env:USERDOMAIN\$env:USERNAME"
+			$superuser_access = $acl.Access | Where-Object IsInherited -eq $false | Where-Object FileSystemRights -eq "FullControl" | Where-Object IdentityReference -eq "$env:USERDOMAIN\$env:USERNAME"
 
 			# If some permissions are missing, add them
 			if (!$admin_access -or !$superuser_access){
@@ -134,10 +134,28 @@ while ($true){
 
 	}
 
-	$uri = "http://timeleft.us/api/v1"
-	$scripts_folder = "C:\Scripts"
-	$superuser_path = "$scripts_folder\config\superusers.json"
-	$permissions_path = "$scripts_folder\config\permissions_done.json"
+	$scripts_folder = $PSScriptRoot # The folder in which heartbeat.ps1 resides
+	$config_folder = Join-Path $scripts_folder 'config'
+	if (!(Test-Path $config_folder)){
+		New-Item -ItemType Directory -Path "$config_folder"
+	}
+	$config_path = Join-Path $config_folder 'config.json'
+	if (!(Test-Path $config_path)){
+		# Let's lay down the default config
+		$default_config = @{ 'address' = 'timeleft.us'; 'protocol' = 'https' }
+		ConvertTo-Json $default_config | Out-File $config_path -Encoding utf8
+	}
+	$config_obj = Get-Content $config_path | ConvertFrom-Json
+	if ($config_obj.protocol.toLower() -eq "http" -or $config_obj.protocol.toLower() -eq "https"){
+		$uri = "$($config_obj.protocol.toLower())://$([uri]::EscapeUriString($config_obj.address.toLower()))/api/v1" #"http://timeleft.us/api/v1"
+	} else {
+		Write-Log "'protocol' must be either 'http' or 'https'. You entered '$($config_obj.protocol.toLower())'"
+		Write-Log 'Falling back to default config of "address" = "timeleft.us" and "protocol" = "https".'
+		$uri = 'https://timeleft.us/api/v1'
+	}
+	
+	$superuser_path = Join-Path $config_folder 'superusers.json'
+	$permissions_path = Join-Path $config_folder 'permissions_done.json'
 	if ($count -eq 0){
 		Write-Log "Starting heartbeat..." $false
 	}
@@ -145,9 +163,7 @@ while ($true){
 	#	$count = 0
 	#	Write-Log "Restarting log..." $false
 	#}
-	if (!(Test-Path $scripts_folder)){
-		New-Item -ItemType Directory -Path "$scripts_folder"
-	}
+	
 
 
 	if (!(Test-Path $permissions_path)){
@@ -156,7 +172,7 @@ while ($true){
 
 	$permissions = Get-Content $permissions_path | ConvertFrom-Json
 
-	$active_user = Get-ComputerSessions | select | where SessionName -eq "console" | where State -eq "Active"
+	$active_user = Get-ComputerSessions | Select-Object | Where-Object SessionName -eq "console" | Where-Object State -eq "Active"
 	# if there is no active user, then exit gracefully
 	if (!$active_user){
 		$count++
@@ -220,7 +236,7 @@ while ($true){
 				if ([double]$result.payload.timeleftminutes -le 1 -and [double]$result.payload.timeleftminutes -gt 0 -and [double]$result.payload.bonustimeminutes -gt 0){
 					$bonus_time_left = $result.payload.bonustimeminutes
 					$bonus_minutes_left = $bonus_time_left.Substring(0,$bonus_time_left.Length-3)
-					$time = Get-Content $scripts_folder\config\datetime.txt -Raw -ErrorAction silentlycontinue
+					$time = Get-Content $(Join-Path $config_folder 'datetime.txt') -Raw -ErrorAction silentlycontinue
 					$current_time = get-date -Format 'yyyyMMddmmss'
 					$result_time = [long]$current_time - [long]$time
 					if ($result_time -gt 120){
@@ -231,7 +247,7 @@ while ($true){
 					get-date -Format 'yyyyMMddmmss' | out-file $scripts_folder\config\datetime.txt
 				}
 				if ([double]$result.payload.timeleftminutes + [double]$result.payload.bonustimeminutes -gt 0 -and [double]$result.payload.timeleftminutes + [double]$result.payload.bonustimeminutes -lt 2){
-					$time = Get-Content $scripts_folder\config\datetime.txt -Raw -ErrorAction silentlycontinue
+					$time = Get-Content $(Join-Path $config_folder 'datetime.txt') -Raw -ErrorAction silentlycontinue
 					$current_time = get-date -Format 'yyyyMMddmmss'
 					$result_time = [long]$current_time - [long]$time
 					if ($result_time -gt 120){
@@ -239,7 +255,7 @@ while ($true){
 						Write-Log "Sending message: $message"
 						msg.exe * /Time:55 $message
 					}
-					get-date -Format 'yyyyMMddmmss' | out-file $scripts_folder\config\datetime.txt
+					get-date -Format 'yyyyMMddmmss' | out-file $(Join-Path $config_folder 'datetime.txt')
 				}
 			} else {
 				Write-Log "Logging off $($active_user.Username)"

@@ -1,0 +1,23 @@
+services:
+   composer:
+     image: ${DOCKER_REGISTRY}composer:latest
+     volumes:
+      - ../:/app
+     environment:
+      - COMPOSER_CACHE_DIR=/app/var/cache/composer
+     restart: never
+
+   phpunit:
+     image: ${DOCKER_IMAGE}
+     restart: never
+     volumes:
+       - ../:/app
+     working_dir: /app
+     entrypoint: vendor/bin/phpunit
+
+
+
+# 
+# docker-compose -f docker-compose-tests.yml run --rm composer require --dev phpunit/phpunit
+# docker-compose -f docker-compose-tests.yml run --rm phpunit --generate-configuration
+# docker-compose -f docker-compose-tests.yml run --rm phpunit --colors=never --log-junit phpunit-report.xml phpunits/tests
