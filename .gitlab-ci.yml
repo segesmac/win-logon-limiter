@@ -368,17 +368,18 @@ deploy-dev-job:
     - export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
     - CRON_SUFFIX="-cron"
     - export DOCKER_IMAGE_CRON="$DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER"
-    - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
-    - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
-    - scp $CRON_SSH_KNOWN_HOSTS segesmac@dev.timeleft.us:~/deployment/ssh_known_hosts_copied.txt
-    - scp $CRON_SSH_PRIVATE_KEY segesmac@dev.timeleft.us:~/deployment/ssh_private_key_copied.txt
-    - scp $WEB_JC_API_KEY segesmac@dev.timeleft.us:~/deployment/web_jc_api_key_copied.txt
-    - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
+    - ssh segesmac@dev.timeleft.us 'mkdir -p ~/staging_deployment'
+    - ssh segesmac@dev.timeleft.us 'rm -f ~/staging_deployment/*'
+    - scp deployment/setup.sh segesmac@dev.timeleft.us:~/staging_deployment/setup.sh
+    - scp $CRON_SSH_KNOWN_HOSTS segesmac@dev.timeleft.us:~/staging_deployment/ssh_known_hosts_copied.txt
+    - scp $CRON_SSH_PRIVATE_KEY segesmac@dev.timeleft.us:~/staging_deployment/ssh_private_key_copied.txt
+    - scp $WEB_JC_API_KEY segesmac@dev.timeleft.us:~/staging_deployment/web_jc_api_key_copied.txt
+    - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/staging_deployment/docker-compose.yml
     #- ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
-    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt -a web_jc_api_key_copied.txt'
+    - ssh segesmac@dev.timeleft.us 'cd ~/staging_deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt -a web_jc_api_key_copied.txt'
   needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^staging.*/'
       changes:
         - .gitlab-ci.yml
         - deployment/**/*
@@ -408,10 +409,10 @@ stop-dev:
     - echo 'SendEnv DOCKER_REGISTRY' >> ~/.ssh/config
   script:
     #- export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
-    - ssh segesmac@dev.timeleft.us 'cd ~/deployment; docker-compose down'
+    - ssh segesmac@dev.timeleft.us 'cd ~/staging_deployment; docker-compose down'
   when: manual
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^feature\/gl.*/'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^staging.*/'
       changes:
         - .gitlab-ci.yml
         - deployment/**/*
@@ -448,6 +449,7 @@ deploy-prod-job:
     - export DOCKER_IMAGE="$DOCKER_REGISTRY$CI_PROJECT_NAME:$BRANCH_LABEL-$VERSION_NUMBER"
     - CRON_SUFFIX="-cron"
     - export DOCKER_IMAGE_CRON="$DOCKER_REGISTRY$CI_PROJECT_NAME$CRON_SUFFIX:$BRANCH_LABEL-$VERSION_NUMBER"
+    - ssh segesmac@dev.timeleft.us 'mkdir -p ~/deployment'
     - ssh segesmac@dev.timeleft.us 'rm -f ~/deployment/*'
     - scp deployment/setup.sh segesmac@dev.timeleft.us:~/deployment/setup.sh
     - scp $CRON_SSH_KNOWN_HOSTS segesmac@dev.timeleft.us:~/deployment/ssh_known_hosts_copied.txt
