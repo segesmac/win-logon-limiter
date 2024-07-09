@@ -110,6 +110,9 @@ table, th, td {
 th {
   background: #ddd;
 }
+tr.odd {
+  background: #cfefff;
+}
 table {
   border-collapse: collapse;
   margin-left: auto;

@@ -2,7 +2,9 @@
 # Yes, I'm aware this is set up so that anyone can change the time limits, etc.  
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
-
+if (null == $is_test){
+	require(__DIR__ . '/../jwt_auth.php');
+}
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
     , $timelimit = null

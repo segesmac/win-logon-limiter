@@ -48,7 +48,7 @@
 
    <!-- Favicon stuff end -->
    <script src="includes/jquery.min.js"></script>
-   <link rel="stylesheet" href="includes/style.css" />
+   <link rel="stylesheet" href="includes/style.css?num=<? echo(rand()); ?>" />
    
 </head>
 <body>
@@ -100,7 +100,7 @@
    </div>
    <div id="timetable">No data received.</div>
    <div id="internetstatus">No data received.</div>
-   <script src="includes/timetable.js"></script>
+   <script src="includes/timetable.js?num=<? echo(rand()); ?>"></script>
 </body>
 <footer>
    <div><p>Version Number: __VERSION__</p></div>

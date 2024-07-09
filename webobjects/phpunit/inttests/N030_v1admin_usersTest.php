@@ -1,5 +1,5 @@
 <?php
-
+$is_test = 1;
 require_once '/var/www/html/api/v1/admin_users.php';
 
 #[PHPUnit\Framework\Attributes\CoversNothing]

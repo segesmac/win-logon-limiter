@@ -1,109 +1,6 @@
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-async function getTable(datastring_prev) {
-    $.getJSON( "api/v1/users.php", function( data ) {
-    var items = [];
-    var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
-    console.log(data);
-    data_to_parse = data.payload;
-    internet_on = false;
-    datastring = JSON.stringify(data);
-    if (data.status == 1 && datastring_prev != datastring){
-      console.log("Updating data");
-      $.each( data_to_parse, function( key, val ) {
-        var row_header = "";
-        var row = "";
-        if (val.timelimitminutes != "-1.00"){
-          $.each( val, function ( new_key, new_val) {
-            // Check list of columns to exclude from above and exclude them
-            if (!columns_to_exclude.includes(new_key)){ 
-              if (key == 0){
-                var column_header = "";
-                switch (new_key){
-                  case "username":
-                    column_header = "Username";
-                    break;
-                  case "lastlogon":
-                    column_header = "Last Logon";
-                    break;
-                  //case "timelimitminutes":
-                  //   column_header = "Time Limit (Minutes)";
-                  //   break;
-                  case "timeleftminutes":
-                     column_header = "Time Left (Minutes)";
-                     break;
-                  case "bonustimeminutes":
-                     column_header = "Bonus Time (Minutes)";
-                     break;
-                  case "bonuscounters":
-                     column_header = "Counters Owed";
-                     break;
-                  default:
-                    column_header = "UNDEFINED";
-                }
-                row_header +=  "<th>" + column_header + "</th>";
-              };
-              if (new_key != "username"){
-                row += "<td>" + new_val.split(".")[0] + "</td>";
-              } else {
-                row += "<td>" + new_val + "</td>";
-                var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
-                if(!optionExists)
-                {
-                    $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
-                }
-              }
-            // Check to see if the computername column is populated with something - that means the internet is on
-            } else if (new_key == "computername" && new_val != null){
-              internet_on = true;
-            }
-          });
-          if (key == 0){
-            items.push( "<tr>" + row_header + "</tr>" );
-          }
-          items.push( "<tr>" + row + "</tr>" );
-        } else {
-          $.each( val, function ( new_key, new_val) {
-            if (new_key == "username"){
-              var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
-              if(!optionExists)
-              {
-                  $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
-              }
-            }
-          });
-        }
-      });
-      $("#timetable").html($( "<table/>", {
-        "class": "my-new-list",
-        html: items.join( "" )
-      }));
-      // Set the internet status div
-      if (internet_on){
-        $("#internetstatus").html("Internet is <span class=\"on\">ON</span>");
-      } else {
-        $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
-      }
-    } else if (data.status < 1) {
-        if (data.status_message.startsWith("No users exist!")){
-            $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
-        } else {
-            $("#timetable").html("Error: "+data.status_message);
-        }
-    }
-    });
-    console.log("Sleeping 10 seconds...");
-    await sleep(10000);
-    console.log("Done sleeping...");
-    
-    getTable(datastring);
-    //})();
-}
-
-$('div#user_button').click(function(){
-  $('div#loginwindow')[0].style.display = 'block';
-});
 
 // JWT STUFF
 
@@ -126,6 +23,9 @@ storeJWT.setJWT = function (data) {
 storeJWT.setUser = function (data) {
   this.jwtuser = data;
 };
+storeJWT.setAdmin = function (data) {
+  this.jwtadmin = data;
+};
 async function authenticate() {
     const response = await fetch('api/v1/authenticate.php', {
         method: 'POST',
@@ -142,6 +42,11 @@ async function authenticate() {
         if (response_obj.jwtauthenticated.status_message == 'Successfully created JWT!'){
           storeJWT.setJWT(response_obj.jwtauthenticated.payload);
           storeJWT.setUser(formData.uname.value);
+          if (response_obj.jwtauthenticated.is_admin == 1 || response_obj.jwtauthenticated.is_tempadmin == 1){
+            storeJWT.setAdmin(1);
+          } else {
+            storeJWT.setAdmin(0);
+          }
           //frmLogin.style.display = 'none';
           $('div#loginwindow')[0].style.display = 'none';
           $('input[name="uname"]').val(''); // Reset inputs
@@ -175,6 +80,228 @@ async function authenticate() {
         console.log(response.status, response.statusText);
     }
 }
+
+async function updateTable(datastring_prev) {
+  $.getJSON( "api/v1/users.php", function( data ) {
+  var items = [];
+  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
+  console.log(data);
+  data_to_parse = data.payload;
+  internet_on = false;
+  datastring = JSON.stringify(data);
+  if (data.status == 1 && datastring_prev != datastring){
+    console.log("Updating data");
+    var count = 0;
+    $.each( data_to_parse, function( key, val ) {
+      var row_header = "";
+      var row = "";
+      if (val.timelimitminutes != "-1.00"){
+        $.each( val, function ( new_key, new_val) {
+          // Check list of columns to exclude from above and exclude them
+          if (!columns_to_exclude.includes(new_key)){
+            if (key == 0){
+              var column_header = "";
+              switch (new_key){
+                case "username":
+                  column_header = "Username";
+                  break;
+                case "lastlogon":
+                  column_header = "Last Logon";
+                  break;
+                //case "timelimitminutes":
+                //   column_header = "Time Limit (Minutes)";
+                //   break;
+                case "timeleftminutes":
+                    column_header = "Time Left (Minutes)";
+                    break;
+                case "bonustimeminutes":
+                    column_header = "Bonus Time (Minutes)";
+                    break;
+                case "bonuscounters":
+                    column_header = "Counters Owed";
+                    break;
+                default:
+                  column_header = "UNDEFINED";
+              }
+              //row_header +=  "<th id='"+new_key+"_th'>" + column_header + "</th>";
+            };
+            if (new_key != "username"){
+              $('#'+new_key+count).html(new_val.split(".")[0])
+              if (storeJWT.jwtadmin == 1) {
+                $('#u_'+new_key+count).display = 'inline'
+              }
+              //row += "<td><span id='"+new_key+count+"'>" + new_val.split(".")[0] + "</span><span id='u_"+new_key+count+"' style='display: none;'> U: " + new_val.split(".")[0] + "</span></td>";
+            } else {
+              //row += "<td><span id='"+new_key+count+"'>" + new_val + "</span></td>";
+              var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
+              if(!optionExists)
+              {
+                  $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
+              }
+            }
+          // Check to see if the computername column is populated with something - that means the internet is on
+          } else if (new_key == "computername" && new_val != null){
+            internet_on = true;
+          }
+          
+        });
+        //if (key == 0){
+        //  items.push( "<tr>" + row_header + "</tr>" );
+        //}
+        //var row_class = "odd"
+        //if (count % 2 == 0){
+        //  row_class = "even"
+        //}
+        //items.push( "<tr class='"+row_class+"'>" + row + "</tr>" );
+        count++
+      } else {
+        $.each( val, function ( new_key, new_val) {
+          if (new_key == "username"){
+            var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
+            if(!optionExists)
+            {
+                $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
+            }
+          }
+        });
+      }
+    });
+    $("#timetable").html($( "<table/>", {
+      "class": "my-new-list",
+      html: items.join( "" )
+    }));
+    // Set the internet status div
+    if (internet_on){
+      $("#internetstatus").html("Internet is <span class=\"on\">ON</span>");
+    } else {
+      $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
+    }
+  } else if (data.status < 1) {
+      if (data.status_message.startsWith("No users exist!")){
+          $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
+      } else {
+          $("#timetable").html("Error: "+data.status_message);
+      }
+  }
+  });
+  console.log("Sleeping 10 seconds...");
+  await sleep(10000);
+  console.log("Done sleeping in update...");
+  
+  updateTable(datastring);
+  //})();
+}
+async function getTable(datastring_prev) {
+  $.getJSON( "api/v1/users.php", function( data ) {
+  var items = [];
+  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
+  console.log(data);
+  data_to_parse = data.payload;
+  internet_on = false;
+  datastring = JSON.stringify(data);
+  if (data.status == 1 && datastring_prev != datastring){
+    console.log("Updating data");
+    var count = 0;
+    $.each( data_to_parse, function( key, val ) {
+      var row_header = "";
+      var row = "";
+      if (val.timelimitminutes != "-1.00"){
+        $.each( val, function ( new_key, new_val) {
+          // Check list of columns to exclude from above and exclude them
+          if (!columns_to_exclude.includes(new_key)){
+            if (key == 0){
+              var column_header = "";
+              switch (new_key){
+                case "username":
+                  column_header = "Username";
+                  break;
+                case "lastlogon":
+                  column_header = "Last Logon";
+                  break;
+                //case "timelimitminutes":
+                //   column_header = "Time Limit (Minutes)";
+                //   break;
+                case "timeleftminutes":
+                    column_header = "Time Left (Minutes)";
+                    break;
+                case "bonustimeminutes":
+                    column_header = "Bonus Time (Minutes)";
+                    break;
+                case "bonuscounters":
+                    column_header = "Counters Owed";
+                    break;
+                default:
+                  column_header = "UNDEFINED";
+              }
+              row_header +=  "<th id='"+new_key+"_th'>" + column_header + "</th>";
+            };
+            if (new_key != "username"){
+              row += "<td><span id='"+new_key+count+"'>" + new_val.split(".")[0] + "</span><span id='u_"+new_key+count+"' style='display: none;'> U: " + new_val.split(".")[0] + "</span></td>";
+            } else {
+              row += "<td><span id='"+new_key+count+"'>" + new_val + "</span></td>";
+              var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
+              if(!optionExists)
+              {
+                  $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
+              }
+            }
+          // Check to see if the computername column is populated with something - that means the internet is on
+          } else if (new_key == "computername" && new_val != null){
+            internet_on = true;
+          }
+          
+        });
+        if (key == 0){
+          items.push( "<tr>" + row_header + "</tr>" );
+        }
+        var row_class = "odd"
+        if (count % 2 == 0){
+          row_class = "even"
+        }
+        items.push( "<tr class='"+row_class+"'>" + row + "</tr>" );
+        count++
+      } else {
+        $.each( val, function ( new_key, new_val) {
+          if (new_key == "username"){
+            var optionExists = ($('#userlist option[value=' + new_val + ']').length > 0);
+            if(!optionExists)
+            {
+                $('#userlist').append("<option value='"+new_val+"'>"+new_val+"</option>");
+            }
+          }
+        });
+      }
+    });
+    $("#timetable").html($( "<table/>", {
+      "class": "my-new-list",
+      html: items.join( "" )
+    }));
+    // Set the internet status div
+    if (internet_on){
+      $("#internetstatus").html("Internet is <span class=\"on\">ON</span>");
+    } else {
+      $("#internetstatus").html("Internet is <span class=\"off\">OFF</span>");
+    }
+  } else if (data.status < 1) {
+      if (data.status_message.startsWith("No users exist!")){
+          $("#timetable").html("Error: "+data.status_message+"<br />Have you set up the client on any machines yet?");
+      } else {
+          $("#timetable").html("Error: "+data.status_message);
+      }
+  }
+  });
+  console.log("Sleeping 10 seconds...");
+  await sleep(10000);
+  console.log("Done sleeping...");
+  
+  updateTable(datastring);
+
+}
+
+$('div#user_button').click(function(){
+  $('div#loginwindow')[0].style.display = 'block';
+});
+
 loginBtn.addEventListener('submit', async (e) => {
     e.preventDefault();
     authenticate();
