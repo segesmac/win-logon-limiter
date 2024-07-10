@@ -176,7 +176,7 @@ function update_span_val(element_id, differential, element_id_to_compare, elemen
     $('#'+element_id_to_update).children().css('color', 'lightgreen');
     
   }
-  if (element_id.startsWith("u_bonustimeminutes") && new_val > 0){
+  if (element_id.startsWith("u_bonustimeminutes") && (new_val > 0 || current_val > 0)){
     var matches = element_id.match(/\d+$/);
     if (matches) {
       number = matches[0];
