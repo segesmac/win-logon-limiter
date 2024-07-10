@@ -101,7 +101,7 @@ mysqli_close($conn);
 if ($has_valid_credentials) {
     $secret_Key     = file_get_contents(getenv("WLL_JWT_SECRET_FILE"));
     $date           = new DateTimeImmutable();
-    $expire_at      = $date->modify('+6 minutes')->getTimestamp();      // Add 6 minutes
+    $expire_at      = $date->modify('+10080 minutes')->getTimestamp();      // Add 10080 minutes (1 week)
     $domainName     = getenv("WEB_DOMAIN_NAME");
 
     // Create the token as an array
