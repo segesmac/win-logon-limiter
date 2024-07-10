@@ -37,8 +37,11 @@ if ($username != ""){
         $temp_admin_startdate = $response[0]['tempadminstartdate'];
         $is_tempadmin = 0;
         if (null != $temp_admin_startdate) {
-            $temp_admin_datediff = date_diff(date_create($temp_admin_startdate),date_create())->format("%i");
-            if ($temp_admin_datediff <= $temp_admin_minutes){
+            $temp_admin_datediff = date_diff(date_create($temp_admin_startdate,timezone_open($_ENV["TZ"])),date_create('now',timezone_open($_ENV["TZ"])));
+            $minutes = $temp_admin_datediff->days * 24 * 60;
+            $minutes += $temp_admin_datediff->h * 60;
+            $minutes += $temp_admin_datediff->i;
+            if ($minutes <= $temp_admin_minutes){
                 $is_tempadmin = 1;
             }
         }

@@ -115,14 +115,24 @@ async function send_span_val(element_id, element_name){
   console.log("Sending username: "+data_username);
   console.log("Sending key_name: "+key_name);
   console.log("Sending key_value: "+data_value);
+  var body_obj = encodeURIComponent("username") + '=' + encodeURIComponent(data_username) + '&'
+  + encodeURIComponent(key_name) + '=' + encodeURIComponent(data_value)
+  if (key_name == 'bonusminutes'){
+    
+    var matches = element_id.match(/\d+$/);
+    if (matches) {
+      number = matches[0];
+    }
+    var bonuscounters = $('#u_bonuscounters'+number).html()
+    body_obj += '&bonuscounters=' +  encodeURIComponent(bonuscounters)
+  }
   const response = await fetch('api/v1/admin_users.php', {
     method: 'POST',
     headers: {
       'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
       'Authorization': `Bearer ${storeJWT.JWT}`
     },
-    body: encodeURIComponent("username") + '=' + encodeURIComponent(data_username) + '&' 
-          + encodeURIComponent(key_name) + '=' + encodeURIComponent(data_value)
+    body: body_obj
   });
   if (response.status >= 200 && response.status <= 299) {
     json_response = await response.text();

@@ -4,6 +4,11 @@
 # then I would call that a win! I'll set up authentication later
 if (null == @$is_test){
 	require(__DIR__ . '/../jwt_auth.php');
+	if ($token->is_tempadmin == 0 && $token->is_admin == 0){
+		header('HTTP/1.1 401 Unauthorized');
+		echo 'Admin access only';
+		exit;
+	}
 }
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
@@ -13,6 +18,7 @@ function modify_user( $username = ""
 	, $bonusminutes = null
 	, $timeleftminutes = null
 	, $timeleftminutesadd = null
+	, $bonuscounters = null
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -36,6 +42,9 @@ function modify_user( $username = ""
 	}
 	if (!empty($data["timeleftminutesadd"])) {
 		$timeleftminutesadd = $data["timeleftminutesadd"];
+	}
+	if (!empty($data["bonuscounters"])) {
+		$bonuscounters = $data["bonuscounters"];
 	}
 	$return_response = array();
 
@@ -71,6 +80,30 @@ function modify_user( $username = ""
 			$return_response["bonusminutes"] = $response;
 		}
 	}
+
+	# Set bonus counters to some value
+	if (!empty($username) && isset($bonuscounters)){
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonuscounters = ? WHERE username = ?")){
+			mysqli_stmt_bind_param($stmt, "ds", $bonuscounters, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			mysqli_stmt_close($stmt);
+			if ($affected_rows == 0){
+				$response = array(
+					'status' => 0,
+					'status_message' => "User $username doesn't exist!"
+				);
+			} else {
+				$response = array(
+					'status' => $bonuscounters,
+					'status_message' => "Set bonuscounters to $bonuscounters for $username successfully!"
+				);
+			}
+			$return_response["bonuscounters"] = $response;
+		}
+	}
+
 	# Add minutes to the bonus pool
 	if (!empty($username) && isset($bonusminutesadd)){
 		$stmt = mysqli_stmt_init($conn);
@@ -245,7 +278,10 @@ if (isset($request_method)){
 			if (isset($_POST["timeleftminutesadd"])){
 				$timeleftminutesadd = strval($_POST["timeleftminutesadd"]);
 			}
-			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd);
+			if (isset($_POST["bonuscounters"])){
+				$bonuscounters = strval($_POST["bonuscounters"]);
+			}
+			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters);
 			
 			break;
 		case 'DELETE':
