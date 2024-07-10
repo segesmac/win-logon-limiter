@@ -178,9 +178,9 @@ build-job:
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
     - cd webobjects
-    - LABEL=$BRANCH_LABEL
+    - LABEL=$BRANCH_LABEL-
     - case $BRANCH_LABEL in release*) LABEL='' ;; esac;
-    - sed -i "s/__VERSION__/$LABEL-$VERSION_NUMBER/g" html/index.php
+    - sed -i "s/__VERSION__/$LABEL$VERSION_NUMBER/g" html/index.php
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-amd64 --platform linux/amd64 --push .
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
@@ -315,7 +315,7 @@ update-version-number-job:
   script:
     - pwsh -command 'Get-ChildItem "env:"'
     - pwsh -command './build_tasks_deploy/000_update_version.ps1'
-  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
+  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux","unit-test-job"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       changes:
@@ -382,7 +382,7 @@ deploy-dev-job:
     - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/staging_deployment/docker-compose.yml
     #- ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
     - ssh segesmac@dev.timeleft.us 'cd ~/staging_deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt -a web_jc_api_key_copied.txt'
-  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
+  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux","unit-test-job"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^staging.*/'
       changes:
@@ -464,7 +464,7 @@ deploy-prod-job:
     - scp deployment/docker-compose.yml segesmac@dev.timeleft.us:~/deployment/docker-compose.yml
     #- ssh segesmac@dev.timeleft.us 'docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; cd ~/deployment; ./setup.sh'
     - ssh segesmac@dev.timeleft.us 'cd ~/deployment; ./setup.sh -k ssh_known_hosts_copied.txt -s ssh_private_key_copied.txt -a web_jc_api_key_copied.txt'
-  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux"]
+  needs: ["get-version-number-job","manifest-job","cron-manifest-job","int-test-job-linux","unit-test-job"]
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_NAME =~ /^release.*/'
       changes:
