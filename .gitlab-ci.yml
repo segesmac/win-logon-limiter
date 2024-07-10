@@ -178,7 +178,9 @@ build-job:
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter"
     - cd webobjects
-    - sed -i "s/__VERSION__/$BRANCH_LABEL-$VERSION_NUMBER/g" html/index.php
+    - LABEL=$BRANCH_LABEL
+    - case $BRANCH_LABEL in release*) LABEL='' ;; esac;
+    - sed -i "s/__VERSION__/$LABEL-$VERSION_NUMBER/g" html/index.php
     - docker buildx build --provenance false -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:$BRANCH_LABEL-latest -t $DOCKER_IMAGE:$BRANCH_LABEL-amd64 --platform linux/amd64 --push .
     #- docker push $DOCKER_IMAGE --all-tags
   retry: 2
@@ -203,7 +205,9 @@ build-arm-job:
     - echo "REGISTRY IMAGE '$CI_REGISTRY_IMAGE'"
     - DOCKER_IMAGE="$CI_REGISTRY_IMAGE/win-logon-limiter-arm"
     - cd webobjects
-    - sed -i "s/__VERSION__/$BRANCH_LABEL-$VERSION_NUMBER/g" html/index.php
+    - LABEL=$BRANCH_LABEL
+    - case $BRANCH_LABEL in release*) LABEL='' ;; esac;
+    - sed -i "s/__VERSION__/$LABEL-$VERSION_NUMBER/g" html/index.php
     #- docker build -t $DOCKER_IMAGE:$BRANCH_LABEL-$VERSION_NUMBER -t $DOCKER_IMAGE:latest-$BRANCH_LABEL --platform linux/amd64 .
     #- docker push $DOCKER_IMAGE --all-tags
     # had to run this once to allow for arm64 builds: docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
