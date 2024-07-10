@@ -518,6 +518,7 @@ logout_button.addEventListener('click', function (e){
   $('a#userbutton')[0].style.display = 'inline-flex';
   storeJWT.setJWT('');
   storeJWT.setUser('');
+  storeJWT.setAdmin('');
   btn_change_pwd.style.display = 'none';
   $('div#welcome')[0].style.display = 'none';
   $('div#welcome')[0].innerHTML = '';
