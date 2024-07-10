@@ -2,7 +2,7 @@
 # Yes, I'm aware this is set up so that anyone can change the time limits, etc.  
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
-if (null == $is_test){
+if (null == @$is_test){
 	require(__DIR__ . '/../jwt_auth.php');
 }
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
@@ -223,13 +223,30 @@ if (isset($request_method)){
 		case 'POST':
 			insert_user();
 			break;*/
-		case 'PUT':
-			if (!empty($_GET["username"])){
-				$username=strval($_GET["username"]);
-				modify_user($username);
-			} else {
-				modify_user();
+		case 'POST':
+			if (!empty($_POST["username"])){
+				$username=strval($_POST["username"]);
 			}
+			if (!empty($_POST["timelimit"])){
+                $timelimit=strval($_POST["timelimit"]);
+			}
+			if (!empty($_POST["bonusminutesadd"])){
+                $bonusminutesadd=strval($_POST["bonusminutesadd"]);
+			}
+			if (!empty($_POST["loginstatus"])){
+				$loginstatus = strval($_POST["loginstatus"]);
+			}
+			if (!empty($_POST["bonusminutes"])){
+				$bonusminutes = strval($_POST["bonusminutes"]);
+			}
+			if (!empty($_POST["timeleftminutes"])){
+				$timeleftminutes = strval($_POST["timeleftminutes"]);
+			}
+			if (!empty($_POST["timeleftminutesadd"])){
+				$timeleftminutesadd = strval($_POST["timeleftminutesadd"]);
+			}
+			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd);
+			
 			break;
 		case 'DELETE':
 			if (!empty($_GET["username"])){

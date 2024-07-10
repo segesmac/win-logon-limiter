@@ -12,6 +12,11 @@ p {
   justify-content: flex-end;
   margin-right: 30px;
 }
+span.admin_update {
+  text-align: right;
+  float: right;
+  margin: auto 5px;
+}
 div.head {
   width: 180px;
   text-align: center;
@@ -75,7 +80,7 @@ form {
   display: flex;
   flex-direction: column;
 }
-form button {
+button {
   width: max-content;
   padding: 5px 20px;
   align-self: center;
@@ -84,11 +89,11 @@ form button {
   color: white;
   font-weight: bold;
 }
-form button:hover {
+button:hover {
   cursor: pointer;
   background-color:grey;
 }
-form button:active {
+button:active {
   background-color:darkcyan;
 }
 div.inputoption {
@@ -106,6 +111,7 @@ table, th, td {
   padding: 5px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 30px;
+  text-align: left;
 }
 th {
   background: #ddd;
