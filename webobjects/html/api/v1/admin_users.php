@@ -2,7 +2,14 @@
 # Yes, I'm aware this is set up so that anyone can change the time limits, etc.  
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
-
+if (null == @$is_test){
+	require(__DIR__ . '/../jwt_auth.php');
+	if ($token->is_tempadmin == 0 && $token->is_admin == 0){
+		header('HTTP/1.1 401 Unauthorized');
+		echo 'Admin access only';
+		exit;
+	}
+}
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
     , $timelimit = null
@@ -11,6 +18,7 @@ function modify_user( $username = ""
 	, $bonusminutes = null
 	, $timeleftminutes = null
 	, $timeleftminutesadd = null
+	, $bonuscounters = null
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -35,6 +43,9 @@ function modify_user( $username = ""
 	if (!empty($data["timeleftminutesadd"])) {
 		$timeleftminutesadd = $data["timeleftminutesadd"];
 	}
+	if (!empty($data["bonuscounters"])) {
+		$bonuscounters = $data["bonuscounters"];
+	}
 	$return_response = array();
 
 
@@ -50,7 +61,7 @@ function modify_user( $username = ""
 	# Set bonus minutes to some value
 	if (!empty($username) && isset($bonusminutes)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 1, bonustimeminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -69,10 +80,34 @@ function modify_user( $username = ""
 			$return_response["bonusminutes"] = $response;
 		}
 	}
+
+	# Set bonus counters to some value
+	if (!empty($username) && isset($bonuscounters)){
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonuscounters = ? WHERE username = ?")){
+			mysqli_stmt_bind_param($stmt, "ds", $bonuscounters, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			mysqli_stmt_close($stmt);
+			if ($affected_rows == 0){
+				$response = array(
+					'status' => 0,
+					'status_message' => "User $username doesn't exist!"
+				);
+			} else {
+				$response = array(
+					'status' => $bonuscounters,
+					'status_message' => "Set bonuscounters to $bonuscounters for $username successfully!"
+				);
+			}
+			$return_response["bonuscounters"] = $response;
+		}
+	}
+
 	# Add minutes to the bonus pool
 	if (!empty($username) && isset($bonusminutesadd)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 2, bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -94,7 +129,7 @@ function modify_user( $username = ""
 	# Set regular minutes to some value
 	if (!empty($username) && isset($timeleftminutes)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 1, timeleftminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -116,7 +151,7 @@ function modify_user( $username = ""
 	# Add minutes to the regular pool
 	if (!empty($username) && isset($timeleftminutesadd)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 2, timeleftminutes = timeleftminutes + ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = timeleftminutes + ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -138,7 +173,7 @@ function modify_user( $username = ""
 	# Update the time limit to some value
 	if (!empty($username) && isset($timelimit)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 3, timelimitminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timelimitminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timelimit, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -221,13 +256,33 @@ if (isset($request_method)){
 		case 'POST':
 			insert_user();
 			break;*/
-		case 'PUT':
-			if (!empty($_GET["username"])){
-				$username=strval($_GET["username"]);
-				modify_user($username);
-			} else {
-				modify_user();
+		case 'POST':
+			if (isset($_POST["username"])){
+				$username=strval($_POST["username"]);
 			}
+			if (isset($_POST["timelimit"])){
+                $timelimit=strval($_POST["timelimit"]);
+			}
+			if (isset($_POST["bonusminutesadd"])){
+                $bonusminutesadd=strval($_POST["bonusminutesadd"]);
+			}
+			if (isset($_POST["loginstatus"])){
+				$loginstatus = strval($_POST["loginstatus"]);
+			}
+			if (isset($_POST["bonusminutes"])){
+				$bonusminutes = strval($_POST["bonusminutes"]);
+			}
+			if (isset($_POST["timeleftminutes"])){
+				$timeleftminutes = strval($_POST["timeleftminutes"]);
+			}
+			if (isset($_POST["timeleftminutesadd"])){
+				$timeleftminutesadd = strval($_POST["timeleftminutesadd"]);
+			}
+			if (isset($_POST["bonuscounters"])){
+				$bonuscounters = strval($_POST["bonuscounters"]);
+			}
+			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters);
+			
 			break;
 		case 'DELETE':
 			if (!empty($_GET["username"])){

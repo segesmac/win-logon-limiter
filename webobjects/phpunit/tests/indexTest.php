@@ -13,7 +13,7 @@ class IndexTest extends PHPUnit\Framework\TestCase
     $output = ob_get_clean();
 
     // Assert that the output starts and ends with <html></html>
-    $this->assertStringStartsWith("<html>", trim($output));
+    $this->assertStringStartsWith("<!DOCTYPE html>", trim($output));
     $this->assertStringEndsWith("</html>", trim($output));
  }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `usertable` ADD COLUMN IF NOT EXISTS tempadminstartdate datetime DEFAULT NULL;

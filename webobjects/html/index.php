@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <?php  
@@ -48,7 +49,7 @@
 
    <!-- Favicon stuff end -->
    <script src="includes/jquery.min.js"></script>
-   <link rel="stylesheet" href="includes/style.css" />
+   <link rel="stylesheet" href="includes/style.css?num=<? echo(rand()); ?>" />
    
 </head>
 <body>
@@ -68,12 +69,12 @@
       <form method="post" action="#" id="loginform">
          <div class="inputoption">
             <label for="uname"><b>Username:</b></label>
-            <input type="text" placeholder="Enter Username" name="uname" list="userlist" required />
+            <input type="text" placeholder="Enter Username" name="uname" id="uname" list="userlist" required />
             <datalist id="userlist"></datalist>
          </div>
          <div class="inputoption">
             <label for="psw"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="psw">
+            <input type="password" placeholder="Enter Password" name="psw" id="psw">
          </div>
          <button id="loginbutton" type="submit">Login</button>
       </form>
@@ -85,22 +86,22 @@
       <form method="post" action="#" id="passwordform">
          <div class="inputoption" id="oldpwddiv">
             <label for="oldpwd" id="oldpwdlbl"><b>Old Password</b></label>
-            <input type="password" id="oldpwdinput" placeholder="Enter Old Password" name="oldpwd" />
+            <input type="password" id="oldpwd" placeholder="Enter Old Password" name="oldpwd" />
          </div>
          <div class="inputoption">
             <label for="newpsw1"><b>New Password</b></label>
-            <input type="password" placeholder="Enter New Password" name="newpsw1" required>
+            <input type="password" placeholder="Enter New Password" name="newpsw1" id="newpsw1" required>
          </div>
          <div class="inputoption">
             <label for="newpsw2"><b>Retype New Password</b></label>
-            <input type="password" placeholder="Reenter New Password" name="newpsw2" required>
+            <input type="password" placeholder="Reenter New Password" name="newpsw2" id="newpsw2" required>
          </div>
          <button id="changepwdbutton" type="submit">Submit</button>
       </form>
    </div>
    <div id="timetable">No data received.</div>
    <div id="internetstatus">No data received.</div>
-   <script src="includes/timetable.js"></script>
+   <script src="includes/timetable.js?num=<? echo(rand()); ?>"></script>
 </body>
 <footer>
    <div><p>Version Number: __VERSION__</p></div>

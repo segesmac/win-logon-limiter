@@ -23,6 +23,17 @@ $secretKey  = file_get_contents(getenv("WLL_JWT_SECRET_FILE"));
 JWT::$leeway += 60;
 try {
     $token = JWT::decode((string)$jwt, new Key($secretKey, 'HS512'));
+    if (null != $token->temp_admin_startdate) {
+        $temp_admin_datediff = date_diff(date_create($token->temp_admin_startdate,timezone_open($_ENV["TZ"])),date_create('now',timezone_open($_ENV["TZ"])));
+        $minutes = $temp_admin_datediff->days * 24 * 60;
+        $minutes += $temp_admin_datediff->h * 60;
+        $minutes += $temp_admin_datediff->i;
+        if ($minutes <= $token->temp_admin_minutes){
+            $token->is_tempadmin = 1;
+        } else {
+            $token->is_tempadmin = 0;
+        }
+    }
 } catch (Firebase\JWT\ExpiredException $e) {
     header('HTTP/1.1 401 Unauthorized');
     echo 'Expired token';

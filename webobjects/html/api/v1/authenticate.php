@@ -33,6 +33,18 @@ if ($username != ""){
     
     if (count($response) == 1 && $username != ""){
         $is_admin = $response[0]['isadmin'];
+        $temp_admin_minutes = $response[0]['tempadminminutes'];
+        $temp_admin_startdate = $response[0]['tempadminstartdate'];
+        $is_tempadmin = 0;
+        if (null != $temp_admin_startdate) {
+            $temp_admin_datediff = date_diff(date_create($temp_admin_startdate,timezone_open($_ENV["TZ"])),date_create('now',timezone_open($_ENV["TZ"])));
+            $minutes = $temp_admin_datediff->days * 24 * 60;
+            $minutes += $temp_admin_datediff->h * 60;
+            $minutes += $temp_admin_datediff->i;
+            if ($minutes <= $temp_admin_minutes){
+                $is_tempadmin = 1;
+            }
+        }
         $password_hash = $response[0]['passwordhash'];
         if ($password_hash == NULL){
             $status_message = "User $username doesn't yet have a password. Please create one!";
@@ -94,18 +106,23 @@ if ($has_valid_credentials) {
 
     // Create the token as an array
     $request_data = [
-        'iat'  => $date->getTimestamp(),        // Issued at: time when the token was generated
-        'iss'  => $domainName,                  // Issuer
-        'nbf'  => $date->getTimestamp(),        // Not before
-        'exp'  => $expire_at,                   // Expire
-        'username' => $username,                // User name
-        'is_admin' => $is_admin,                // Is admin user? 1 or 0
+        'iat'  => $date->getTimestamp(),                 // Issued at: time when the token was generated
+        'iss'  => $domainName,                           // Issuer
+        'nbf'  => $date->getTimestamp(),                 // Not before
+        'exp'  => $expire_at,                            // Expire
+        'username' => $username,                         // User name
+        'is_admin' => $is_admin,                         // Is admin user? 1 or 0
+        'is_tempadmin' => $is_tempadmin,                 // Is temp admin user? 1 or 0
+        'temp_admin_minutes' => $temp_admin_minutes,     // Number of minutes temp admin lasts
+        'temp_admin_startdate' => $temp_admin_startdate, // Start date of temp admin state
     ];
 
     // Encode the array to a JWT string.
     $return_response["jwtauthenticated"] = array(
         'status' => 1,
         'status_message' => "Successfully created JWT!",
+        'is_admin' => $is_admin,
+        'is_tempadmin' => $is_tempadmin,
         'payload' => JWT::encode(
             $request_data,      //Data to be encoded in the JWT
             $secret_Key, // The signing key
