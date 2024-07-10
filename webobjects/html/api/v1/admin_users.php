@@ -52,7 +52,7 @@ function modify_user( $username = ""
 	# Set bonus minutes to some value
 	if (!empty($username) && isset($bonusminutes)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 1, bonustimeminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -74,7 +74,7 @@ function modify_user( $username = ""
 	# Add minutes to the bonus pool
 	if (!empty($username) && isset($bonusminutesadd)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 2, bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -96,7 +96,7 @@ function modify_user( $username = ""
 	# Set regular minutes to some value
 	if (!empty($username) && isset($timeleftminutes)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 1, timeleftminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -118,7 +118,7 @@ function modify_user( $username = ""
 	# Add minutes to the regular pool
 	if (!empty($username) && isset($timeleftminutesadd)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 2, timeleftminutes = timeleftminutes + ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = timeleftminutes + ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -140,7 +140,7 @@ function modify_user( $username = ""
 	# Update the time limit to some value
 	if (!empty($username) && isset($timelimit)){
 		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW() + 3, timelimitminutes = ? WHERE username = ?")){
+		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timelimitminutes = ? WHERE username = ?")){
 			mysqli_stmt_bind_param($stmt, "ds", $timelimit, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
@@ -224,25 +224,25 @@ if (isset($request_method)){
 			insert_user();
 			break;*/
 		case 'POST':
-			if (!empty($_POST["username"])){
+			if (isset($_POST["username"])){
 				$username=strval($_POST["username"]);
 			}
-			if (!empty($_POST["timelimit"])){
+			if (isset($_POST["timelimit"])){
                 $timelimit=strval($_POST["timelimit"]);
 			}
-			if (!empty($_POST["bonusminutesadd"])){
+			if (isset($_POST["bonusminutesadd"])){
                 $bonusminutesadd=strval($_POST["bonusminutesadd"]);
 			}
-			if (!empty($_POST["loginstatus"])){
+			if (isset($_POST["loginstatus"])){
 				$loginstatus = strval($_POST["loginstatus"]);
 			}
-			if (!empty($_POST["bonusminutes"])){
+			if (isset($_POST["bonusminutes"])){
 				$bonusminutes = strval($_POST["bonusminutes"]);
 			}
-			if (!empty($_POST["timeleftminutes"])){
+			if (isset($_POST["timeleftminutes"])){
 				$timeleftminutes = strval($_POST["timeleftminutes"]);
 			}
-			if (!empty($_POST["timeleftminutesadd"])){
+			if (isset($_POST["timeleftminutesadd"])){
 				$timeleftminutesadd = strval($_POST["timeleftminutesadd"]);
 			}
 			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd);
