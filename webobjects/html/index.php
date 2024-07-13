@@ -100,6 +100,9 @@
       </form>
    </div>
    <div id="timetable">No data received.</div>
+   <div id="refreshtable" style="display: none;">
+      <button id="changepwdbutton" onclick='getTable("")'>Refresh Table</button>
+   </div>
    <div id="internetstatus">No data received.</div>
    <script src="includes/timetable.js?num=<? echo(rand()); ?>"></script>
 </body>
