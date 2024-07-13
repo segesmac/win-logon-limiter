@@ -196,6 +196,9 @@ async function updateTable(datastring_prev) {
   datastring = JSON.stringify(data);
   if (data.status == 1 && datastring_prev != datastring){
     console.log("Updating data");
+    if (storeJWT.jwtadmin == 1) {
+      $('span.admin_update').show();
+    }
     var count = 0;
     $.each( data_to_parse, function( key, val ) {
       var row_header = "";
@@ -231,13 +234,13 @@ async function updateTable(datastring_prev) {
               //row_header +=  "<th id='"+new_key+"_th'>" + column_header + "</th>";
             };
             console.log('IS_ADMIN: ' + storeJWT.jwtadmin)
-            if (storeJWT.jwtadmin == 1) {
+            
               //console.log("updating #u_"+new_key+count+" to display inline")
               //$('#u_'+new_key+count)[0].style.display = 'inline'
               //$('#b_'+new_key+count)[0].style.display = 'inline'
               //$('#c_'+new_key+count)[0].style.display = 'inline'
               
-            }
+            
             if (new_key != "username"){
               $('#'+new_key+count).html(new_val.split(".")[0])
               update_span_val("u_"+new_key+count, null, new_key+count, "c_"+new_key+count);
@@ -432,6 +435,7 @@ async function getTable(datastring_prev) {
       }
   }
   });
+  updateTable("");
   return datastring;
 }
 
