@@ -56,6 +56,8 @@ async function authenticate() {
           console.log("is_tempadmin: "+response_obj.jwtauthenticated.is_tempadmin)
           if (response_obj.jwtauthenticated.is_admin == 1 || response_obj.jwtauthenticated.is_tempadmin == 1){
             storeJWT.setAdmin(1);
+            $('div#refreshtable').show();
+            $('span.admin_update').show();
           } else {
             storeJWT.setAdmin(0);
           }
@@ -231,9 +233,9 @@ async function updateTable(datastring_prev) {
             console.log('IS_ADMIN: ' + storeJWT.jwtadmin)
             if (storeJWT.jwtadmin == 1) {
               //console.log("updating #u_"+new_key+count+" to display inline")
-              $('#u_'+new_key+count)[0].style.display = 'inline'
-              $('#b_'+new_key+count)[0].style.display = 'inline'
-              $('#c_'+new_key+count)[0].style.display = 'inline'
+              //$('#u_'+new_key+count)[0].style.display = 'inline'
+              //$('#b_'+new_key+count)[0].style.display = 'inline'
+              //$('#c_'+new_key+count)[0].style.display = 'inline'
               
             }
             if (new_key != "username"){
@@ -523,6 +525,7 @@ logout_button.addEventListener('click', function (e){
   $('div#welcome')[0].style.display = 'none';
   $('div#welcome')[0].innerHTML = '';
   $('span.admin_update').hide();
+  $('div#refreshtable').hide();
 });
 /* // Need to create a form for changing the password
 btn_change_pwd.addEventListener('click', async (e) => {
