@@ -564,7 +564,11 @@ async function run_updates(tabledata) {
   console.log("Sleeping 10 seconds...");
   await sleep(10000);
   console.log("Done sleeping...");
-  new_tabledata = await updateTable(tabledata);
+  try {
+    new_tabledata = await updateTable(tabledata);
+  } catch (error) {
+    console.error(error);
+  }
   run_updates(new_tabledata);
 }
 
