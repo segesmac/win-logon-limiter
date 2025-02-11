@@ -18,6 +18,7 @@ services:
        interval: 10s
        timeout: 5s
        retries: 5
+     restart: unless-stopped
 
    wllweb:
      depends_on:
@@ -35,6 +36,7 @@ services:
        - db_password
        - web_jwt_secret
        - web_jc_api_key
+     restart: unless-stopped
   
    wllcron:
      depends_on:
@@ -51,6 +53,7 @@ services:
        - db_password
        - ssh_known_hosts
        - ssh_private_key
+     restart: unless-stopped
 
 secrets:
    db_password:
