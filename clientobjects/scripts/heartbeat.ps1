@@ -44,7 +44,7 @@ while ($true){
 		Process {
 			# Parse 'quser' and store in $sessions:
 			$sessions = quser
-			$sessions | ConvertFrom-String -PropertyNames "UserName", "SessionName", "ID", "State", "IdleTime", "LogonTime" |
+			$sessions | ConvertFrom-String -PropertyNames "Spacer", "UserName", "SessionName", "ID", "State", "IdleTime", "LogonTime" |
 			Select-Object -Skip 1 |
 			ForEach-Object {
 					$temp = "" | Select-Object Computer, Username, SessionName, SessionID, State, IdleTime, LogonTime
