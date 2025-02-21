@@ -42,7 +42,7 @@ while ($true){
 			$report = @()
 		}
 		Process {
-			# Parse 'quser' and store in $sessions:
+			# Parse 'quser' and store in $sessions variable:
 			$sessions = quser
 			$sessions | ConvertFrom-String -PropertyNames "UserName", "SessionName", "ID", "State", "IdleTime", "LogonTime" |
 			Select-Object -Skip 1 |
