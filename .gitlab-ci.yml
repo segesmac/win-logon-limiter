@@ -55,6 +55,7 @@ get-version-number-client-job:
       changes:
         - .gitlab-ci.yml
         - task_runner.ps1
+        - clientobjects/**/*
         - build_tasks_choco/**/*
         - choco_package/**/*
 
@@ -303,6 +304,7 @@ deploy-choco-job:
       changes:
         - .gitlab-ci.yml
         - task_runner.ps1
+        - clientobjects/**/*
         - build_tasks_choco/**/*
         - choco_package/**/*
 
@@ -338,6 +340,7 @@ update-version-number-client-job:
       changes:
         - .gitlab-ci.yml
         - task_runner.ps1
+        - clientobjects/**/*
         - build_tasks_choco/**/*
         - choco_package/**/*
 
