@@ -24,63 +24,42 @@ while ($true){
 	}
 	# Check if logged-in session exists
 
-	Function Get-ComputerSessions {
-	<#
-	.SYNOPSIS
-		Retrieves tall user sessions from local or remote server/s
-	.DESCRIPTION
-		Retrieves tall user sessions from local or remote server/s
-	.PARAMETER computer
-		Name of computer/s to run session query against.
-	.NOTES
-		Name: Get-ComputerSessions
-		Author: Boe Prox
-		DateCreated: 01Nov2010
-	 
-	.LINK
-		https://boeprox.wordpress.org
-		https://learn-powershell.net/2010/11/01/quick-hit-find-currently-logged-on-users/
-	.EXAMPLE
-	Get-ComputerSessions -computer "server1"
-	 
-	Description
-	-----------
-	This command will query all current user sessions on 'server1'.
-	 
-	#>
-	[cmdletbinding(
-		DefaultParameterSetName = 'session',
-		ConfirmImpact = 'low'
-	)]
-		Param(
-			[Parameter(
-				Mandatory = $false,
-				Position = 0,
-				ValueFromPipeline = $True)]
-				[string[]]$computer = "localhost"
-				)
-	Begin {
-		$report = @()
+	Function Get-ComputerSession {
+		<#
+		.SYNOPSIS
+			Retrieves all user sessions from local computer
+		.DESCRIPTION
+			Retrieves all user sessions from local computer
+		.EXAMPLE
+		Get-ComputerSession
+		 
+		Description
+		-----------
+		This command will query all current user sessions.
+		 
+		#>
+		Begin {
+			$report = @()
 		}
-	Process {
-		ForEach($c in $computer) {
-			# Parse 'query session' and store in $sessions:
-			$sessions = query session /server:$c
-				1..($sessions.count -1) | ForEach-Object {
-					$temp = "" | Select-Object Computer,SessionName, Username, Id, State, Type, Device
+		Process {
+			# Parse 'quser' and store in $sessions:
+			$sessions = quser
+			$sessions | ConvertFrom-String -PropertyNames "UserName", "SessionName", "ID", "State", "IdleTime", "LogonTime" |
+			Select-Object -Skip 1 |
+			ForEach-Object {
+					$temp = "" | Select-Object Computer, Username, SessionName, SessionID, State, IdleTime, LogonTime
 					$temp.Computer = $c
-					$temp.SessionName = $sessions[$_].Substring(1,18).Trim()
-					$temp.Username = $sessions[$_].Substring(19,20).Trim()
-					$temp.Id = $sessions[$_].Substring(39,9).Trim()
-					$temp.State = $sessions[$_].Substring(48,8).Trim()
-					$temp.Type = $sessions[$_].Substring(56,12).Trim()
-					$temp.Device = $sessions[$_].Substring(68).Trim()
+					$temp.Username = $_.UserName -replace '>', ''
+					$temp.SessionName = $_.SessionName
+					$temp.SessionID = $_.ID
+					$temp.State = $_.State
+					$temp.IdleTime = $_.IdleTime
+					$temp.LogonTime = $_.LogonTime
 					$report += $temp
 				}
-			}
 		}
-	End {
-		$report
+		End {
+			$report
 		}
 	}
 
@@ -172,7 +151,7 @@ while ($true){
 
 	$permissions = Get-Content $permissions_path | ConvertFrom-Json
 
-	$active_user = Get-ComputerSessions | Select-Object | Where-Object SessionName -eq "console" | Where-Object State -eq "Active"
+	$active_user = Get-ComputerSession | Select-Object | Where-Object SessionName -eq "console" | Where-Object State -eq "Active"
 	# if there is no active user, then exit gracefully
 	if (!$active_user){
 		$count++
