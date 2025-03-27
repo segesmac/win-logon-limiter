@@ -24,64 +24,104 @@ while ($true){
 	}
 	# Check if logged-in session exists
 
-	Function Get-ComputerSessions {
+	Function Get-LoggedInUser {
 	<#
 	.SYNOPSIS
-		Retrieves tall user sessions from local or remote server/s
-	.DESCRIPTION
-		Retrieves tall user sessions from local or remote server/s
-	.PARAMETER computer
-		Name of computer/s to run session query against.
+		This will check the specified machine to see all users who are logged on.
+		For updated help and examples refer to -Online version.
+	 
 	.NOTES
-		Name: Get-ComputerSessions
-		Author: Boe Prox
-		DateCreated: 01Nov2010
+		Name: Get-LoggedInUser
+		Author: Paul Contreras
+		Version: 3.0
+		DateUpdated: 2021-Sep-21
 	 
 	.LINK
-		https://boeprox.wordpress.org
-		https://learn-powershell.net/2010/11/01/quick-hit-find-currently-logged-on-users/
-	.EXAMPLE
-	Get-ComputerSessions -computer "server1"
+		https://thesysadminchannel.com/get-logged-in-users-using-powershell/ -
+		For updated help and examples refer to -Online version.
 	 
-	Description
-	-----------
-	This command will query all current user sessions on 'server1'.
+	.PARAMETER ComputerName
+		Specify a computername to see which users are logged into it.  If no computers are specified, it will default to the local computer.
+	 
+	.PARAMETER UserName
+		If the specified username is found logged into a machine, it will display it in the output.
+	 
+	.EXAMPLE
+		Get-LoggedInUser -ComputerName Server01
+		Display all the users that are logged in server01
+	 
+	.EXAMPLE
+		Get-LoggedInUser -ComputerName Server01, Server02 -UserName jsmith
+		Display if the user, jsmith, is logged into server01 and/or server02
+	 
 	 
 	#>
-	[cmdletbinding(
-		DefaultParameterSetName = 'session',
-		ConfirmImpact = 'low'
-	)]
-		Param(
-			[Parameter(
-				Mandatory = $false,
-				Position = 0,
-				ValueFromPipeline = $True)]
-				[string[]]$computer = "localhost"
-				)
-	Begin {
-		$report = @()
-		}
-	Process {
-		ForEach($c in $computer) {
-			# Parse 'query session' and store in $sessions:
-			$sessions = query session /server:$c
-				1..($sessions.count -1) | ForEach-Object {
-					$temp = "" | Select-Object Computer,SessionName, Username, Id, State, Type, Device
-					$temp.Computer = $c
-					$temp.SessionName = $sessions[$_].Substring(1,18).Trim()
-					$temp.Username = $sessions[$_].Substring(19,20).Trim()
-					$temp.Id = $sessions[$_].Substring(39,9).Trim()
-					$temp.State = $sessions[$_].Substring(48,8).Trim()
-					$temp.Type = $sessions[$_].Substring(56,12).Trim()
-					$temp.Device = $sessions[$_].Substring(68).Trim()
-					$report += $temp
+	 
+		[CmdletBinding()]
+			param(
+				[Parameter(
+					Mandatory = $false,
+					ValueFromPipeline = $true,
+					ValueFromPipelineByPropertyName = $true,
+					Position=0
+				)]
+				[string[]] $ComputerName = $env:COMPUTERNAME,
+	 
+	 
+				[Parameter(
+					Mandatory = $false
+				)]
+				[Alias("SamAccountName")]
+				[string]   $UserName
+			)
+	 
+		BEGIN {}
+	 
+		PROCESS {
+			foreach ($Computer in $ComputerName) {
+				try {
+					$Computer = $Computer.ToUpper()
+					$SessionList = quser /Server:$Computer 2>$null
+					if ($SessionList) {
+						$UserInfo = foreach ($Session in ($SessionList | select -Skip 1)) {
+							$Session = $Session.ToString().trim() -replace '\s+', ' ' -replace '>', ''
+							if ($Session.Split(' ')[3] -eq 'Active') {
+								[PSCustomObject]@{
+									ComputerName = $Computer
+									UserName     = $session.Split(' ')[0]
+									SessionName  = $session.Split(' ')[1]
+									SessionID    = $Session.Split(' ')[2]
+									SessionState = $Session.Split(' ')[3]
+									IdleTime     = $Session.Split(' ')[4]
+									LogonTime    = $session.Split(' ')[5, 6, 7] -as [string] -as [datetime]
+								}
+							} else {
+								[PSCustomObject]@{
+									ComputerName = $Computer
+									UserName     = $session.Split(' ')[0]
+									SessionName  = $null
+									SessionID    = $Session.Split(' ')[1]
+									SessionState = 'Disconnected'
+									IdleTime     = $Session.Split(' ')[3]
+									LogonTime    = $session.Split(' ')[4, 5, 6] -as [string] -as [datetime]
+								}
+							}
+						}
+	 
+						if ($PSBoundParameters.ContainsKey('Username')) {
+							$UserInfo | Where-Object {$_.UserName -eq $UserName}
+						  } else {
+							$UserInfo | Sort-Object LogonTime
+						}
+					}
+				} catch {
+					Write-Log $_.Exception.Message
+	 
 				}
 			}
 		}
-	End {
-		$report
-		}
+	 
+		END {}
 	}
 
 
@@ -172,7 +212,7 @@ while ($true){
 
 	$permissions = Get-Content $permissions_path | ConvertFrom-Json
 
-	$active_user = Get-ComputerSessions | Select-Object | Where-Object SessionName -eq "console" | Where-Object State -eq "Active"
+	$active_user = Get-LoggedInUser | Select-Object | Where-Object SessionName -eq "console" | Where-Object SessionState -eq "Active"
 	# if there is no active user, then exit gracefully
 	if (!$active_user){
 		$count++
@@ -259,7 +299,7 @@ while ($true){
 				}
 			} else {
 				Write-Log "Logging off $($active_user.Username)"
-				logoff $active_user.Id
+				logoff $active_user.SessionID
 			}
 		} else {
 			if ($active_user.Username -notin $superusers){
