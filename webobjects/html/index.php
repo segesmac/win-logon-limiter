@@ -106,8 +106,16 @@
    <div id="internetstatus">No data received.</div>
    <script src="includes/timetable.js?num=<? echo(rand()); ?>"></script>
    <div id="calendar">
-      <iframe src="https://calendar.google.com/calendar/embed?height=500&wkst=1&ctz=America%2FDenver&showPrint=0&mode=AGENDA&showDate=0&title=Family&src=ZmE3ZTJjZTQ3NTM3NzVmNWM1YTBmZGQ5OGNkMGMwOTI1ZDNjYzA1YjU5NjQ2ODQ3YWM3NDM4MmIxY2Q2MmZjNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=YjBhY2JkMTM3MmVhZGVjYzYzYTM5YzdlNmNlMDJhY2M3ZDQxY2RiMjg5ZWJiYWYzMmZiZWMyYzVjMzdkYTk2ZEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=MDU3ZmMxMjRhYTIwOGU1MWIwNTVlNGFkZmNlYjQ5ZTc1ODlhOTRmZjUzZDBkYTdiMzk5NWNkODBiZmUxM2Y4MkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=MTI3ZDBiNjVjYzI2ZDJmOTY5YTJkYTZmYjJjMzkyN2FmYzE4MjU1M2NiYjg4NjhlNzdjZDBkMWIxMGY1OTE0YUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=cmViZWNjYS5zZWdlc21hbkBnbWFpbC5jb20&src=MGMyODU2NjU5ZTVkY2FjODljYmExZjY0OTdkZmNlMjdlZGU4ZTY4ZTA5NTE2YTllZTNkYzEyNTc1ZDg0YmYwNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=N2QxNmM4Y2YwYjVkNTE1YWEzNTdmNzFhNmM4M2E2Y2Q1YjgzNWFiYmI3NWI3NGRlMTZiMTFiZjdiYjdmYTAwMUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23AD1457&color=%238E24AA&color=%23039BE5&color=%23ae4f66&color=%23E4C441&color=%23616161&color=%23D50000&color=%23009688" style="border:solid 1px #777" width="1000" height="500" frameborder="0" scrolling="no"></iframe>
+      <iframe id="icalendar" src="https://calendar.google.com/calendar/embed?height=500&wkst=1&ctz=America%2FDenver&showPrint=0&mode=AGENDA&showDate=0&title=Family&src=ZmE3ZTJjZTQ3NTM3NzVmNWM1YTBmZGQ5OGNkMGMwOTI1ZDNjYzA1YjU5NjQ2ODQ3YWM3NDM4MmIxY2Q2MmZjNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=YjBhY2JkMTM3MmVhZGVjYzYzYTM5YzdlNmNlMDJhY2M3ZDQxY2RiMjg5ZWJiYWYzMmZiZWMyYzVjMzdkYTk2ZEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=MDU3ZmMxMjRhYTIwOGU1MWIwNTVlNGFkZmNlYjQ5ZTc1ODlhOTRmZjUzZDBkYTdiMzk5NWNkODBiZmUxM2Y4MkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=MTI3ZDBiNjVjYzI2ZDJmOTY5YTJkYTZmYjJjMzkyN2FmYzE4MjU1M2NiYjg4NjhlNzdjZDBkMWIxMGY1OTE0YUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=cmViZWNjYS5zZWdlc21hbkBnbWFpbC5jb20&src=MGMyODU2NjU5ZTVkY2FjODljYmExZjY0OTdkZmNlMjdlZGU4ZTY4ZTA5NTE2YTllZTNkYzEyNTc1ZDg0YmYwNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=N2QxNmM4Y2YwYjVkNTE1YWEzNTdmNzFhNmM4M2E2Y2Q1YjgzNWFiYmI3NWI3NGRlMTZiMTFiZjdiYjdmYTAwMUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%23AD1457&color=%238E24AA&color=%23039BE5&color=%23ae4f66&color=%23E4C441&color=%23616161&color=%23D50000&color=%23009688" style="border:solid 1px #777" width="1000" height="500" frameborder="0" scrolling="no"></iframe>
    </div>
+   <script>
+      window.setInterval("reloadIFrame();", 300000); // 5 minutes
+
+      function reloadIFrame() {
+       console.log("Attempting to reload frame...");
+       document.getElementById('icalendar').src = document.getElementById('icalendar').src;
+      }
+   </script>
 </body>
 <footer>
    <div><p>Version Number: __VERSION__</p></div>
