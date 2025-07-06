@@ -16,7 +16,7 @@ function get_users($username = ""){
 		}
 	} else {
 		$get_all = true;
-		$query="SELECT * FROM usertimetable";
+		$query="SELECT * FROM usertimetable ORDER BY userorder";
 		$result=mysqli_query($conn, $query);
 	}
 	$response=array();
