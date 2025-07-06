@@ -155,6 +155,9 @@ function update_user( $username = ""
 	if (!empty($data["loginstatus"])) {
 		$loginstatus = $data["loginstatus"];
 	}
+	if (!empty($data["userorder"])) {
+		$userorder = $data["userorder"];
+	}
 	$return_response = array();
 
 
@@ -166,7 +169,33 @@ function update_user( $username = ""
 		);
 		$return_response = $response;
 	}
-
+        # Update user order
+	if (isset($userorder) && $username != ""){
+		$stmt = mysqli_stmt_init($conn);
+		if (mysqli_stmt_prepare($stmt,
+			"UPDATE usertimetable
+                            SET
+                                userorder = ?
+			    WHERE username = ?;"
+		)){
+			mysqli_stmt_bind_param($stmt, "is", $userorder, $username);
+			mysqli_stmt_execute($stmt);
+			$affected_rows = mysqli_stmt_affected_rows($stmt);
+			mysqli_stmt_close($stmt);
+			if ($affected_rows == 0){
+				$response = array(
+					'status' => 0,
+                                        'status_message' => "User $username doesn't exist! Unable to update order."
+                                );
+			} else {
+                                $response = array(
+                                        'status' => 1,
+                                        'status_message' => "User order for $username updated successfully!"
+				);
+			}
+                        $return_response["userorder"] = $response;
+                }
+        }
 	# Update login status
 	if (isset($loginstatus) && $username != ""){
 		$stmt = mysqli_stmt_init($conn);
