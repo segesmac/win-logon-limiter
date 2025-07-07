@@ -3,6 +3,8 @@ param (
     $product = ''
 )
 
+$ErrorActionPreference = 'Stop'
+
 $branch_label= $env:CI_COMMIT_BRANCH -replace "\W","_" # replace non-word characters with "_"
 $version_branch = 'version_dev'
 $project_name = $env:CI_PROJECT_NAME
