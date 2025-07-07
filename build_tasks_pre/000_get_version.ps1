@@ -24,6 +24,14 @@ Write-Output "Using this URI: $uri"
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -SkipHttpErrorCheck # SkipHttpErrorCheck will send the error response to $result instead of erroring out
 Write-Output "RESULT_VERSION:"
 Write-Output $result
+if ($result.status -eq 404) {
+	Write-Output "$version_file_name file not found - skipping."
+	$result.status = 200
+}
+if ($result.status -ge 400) {
+	Write-Error "Failed Invoke-RestMethod"
+	throw $result
+}
 $version_number = $null
 if ($null -ne $result.name){
     $decode = [System.Convert]::FromBase64String($result.content)
@@ -46,6 +54,10 @@ $headers = @{
 $result = Invoke-RestMethod -Uri $uri -Headers $headers -Method $method -SkipHttpErrorCheck # SkipHttpErrorCheck will send the error response to $result instead of erroring out
 Write-Output "RESULT:"
 Write-Output $result
+if ($result.status -ge 400) {
+        Write-Error "Failed Invoke-RestMethod"
+        throw $result
+}
 if ($null -ne $result.name){
     $decode = [System.Convert]::FromBase64String($result.content)
     $build_version_stub = [System.Text.Encoding]::UTF8.GetString($decode).Trim()

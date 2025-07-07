@@ -189,7 +189,7 @@ function update_span_val(element_id, differential, element_id_to_compare, elemen
 async function updateTable(datastring_prev) {
   await $.getJSON( "api/v1/users.php", function( data ) {
   var items = [];
-  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
+  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername","userorder"];
   console.log(data);
   data_to_parse = data.payload;
   internet_on = false;
@@ -318,7 +318,7 @@ async function updateTable(datastring_prev) {
 async function getTable(datastring_prev) {
   await $.getJSON( "api/v1/users.php", function( data ) {
   var items = [];
-  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername"];
+  var columns_to_exclude = ["usertimetableid","timelimitminutes","lastrowupdate","isloggedon","lastlogon","lastheartbeat","computername","userorder"];
   console.log(data);
   data_to_parse = data.payload;
   internet_on = false;

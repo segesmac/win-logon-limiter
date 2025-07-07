@@ -37,60 +37,64 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
  */
-$path = "/tools/dbupdater";
-$original_path = $path;
-$query="SELECT dbconfigvalue FROM dbconfigtable WHERE dbconfigkey = 'version'";
-$response_successful = true;
-$response=array();
-try {
-    $result=mysqli_query($conn, $query);
-    while($row=mysqli_fetch_assoc($result)){
-        $response[]=$row;
-    }
-#    echo "Response: \n";
-#    echo var_export($response[0],true);
-} catch (Exception $e){
-    echo 'Caught exception: ',  $e->getMessage(), "\n";
-    $response_successful = false;
-}
-if ($response_successful){
-    $version_number = $response[0]["dbconfigvalue"];
-    echo "Version Number: " . $version_number . "\n";
-    $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
-    $found_version = false;
-    # If we have the version number, let's pick the next version number above the number we found.
-    foreach ($scriptfolders as $scriptfolder){
-        if ($found_version){
-            $path = "$path/$scriptfolder";
-            break;
+while (1==1) {
+    $path = "/tools/dbupdater";
+    $original_path = $path;
+    $query="SELECT dbconfigvalue FROM dbconfigtable WHERE dbconfigkey = 'version'";
+    $response_successful = true;
+    $response=array();
+    try {
+        $result=mysqli_query($conn, $query);
+        while($row=mysqli_fetch_assoc($result)){
+            $response[]=$row;
         }
-        if ($scriptfolder == $version_number){
-            $found_version = true;
+    #    echo "Response: \n";
+    #    echo var_export($response[0],true);
+    } catch (Exception $e){
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+        $response_successful = false;
+    }
+    if ($response_successful){
+        $version_number = $response[0]["dbconfigvalue"];
+        echo "Version Number: " . $version_number . "\n";
+        $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
+        $found_version = false;
+        # If we have the version number, let's pick the next version number above the number we found.
+        foreach ($scriptfolders as $scriptfolder){
+            if ($found_version){
+                $path = "$path/$scriptfolder";
+                break;
+            }
+            if ($scriptfolder == $version_number){
+                $found_version = true;
+            }
+        }
+    } else {
+        echo "Unable to obtain version number.  Creating config db.\n";
+        $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
+        $found_version = true;
+        foreach ($scriptfolders as $scriptfolder){
+            if ($found_version){
+                $path = "$path/$scriptfolder";
+                break;
+            }
+            if ($scriptfolder == $version_number){
+                $found_version = true;
+            }
         }
     }
-} else {
-    echo "Unable to obtain version number.  Creating config db.\n";
-    $scriptfolders = array_diff(scandir($path), array('.', '..', 'update_db.php'));
-    $found_version = true;
-    foreach ($scriptfolders as $scriptfolder){
-        if ($found_version){
-            $path = "$path/$scriptfolder";
-            break;
+    # If path == original_path, then it means the db is already up to date
+    if ($path != $original_path){
+        $scriptnames = array_diff(scandir($path), array('.', '..'));
+        foreach($scriptnames as $scriptname) {
+            $statement = file_get_contents("$path/$scriptname");
+            mysqli_query($conn, $statement);
         }
-        if ($scriptfolder == $version_number){
-            $found_version = true;
-        }
+    } else {
+        echo "DB is already up to date.\n";
+        break;
     }
-}
-# If path == original_path, then it means the db is already up to date
-if ($path != $original_path){
-    $scriptnames = array_diff(scandir($path), array('.', '..'));
-    foreach($scriptnames as $scriptname) {
-        $statement = file_get_contents("$path/$scriptname");
-        mysqli_query($conn, $statement);
-    }
-} else {
-    echo "DB is already up to date.\n";
 }
 mysqli_close($conn);
+
 ?>
