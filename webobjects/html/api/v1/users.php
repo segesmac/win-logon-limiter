@@ -16,7 +16,7 @@ function get_users($username = ""){
 		}
 	} else {
 		$get_all = true;
-		$query="SELECT * FROM usertimetable";
+		$query="SELECT * FROM usertimetable ORDER BY userorder";
 		$result=mysqli_query($conn, $query);
 	}
 	$response=array();
@@ -74,6 +74,7 @@ function insert_user( $username = "" # jdoe
 			, timelimitminutes
 			, timeleftminutes
 			, bonustimeminutes
+			, userorder
 		) 
 		SELECT * FROM (
 			SELECT ? AS username
@@ -83,6 +84,7 @@ function insert_user( $username = "" # jdoe
 				, ? AS timelimitminutes
 				, ? AS timeleftminutes
 				, 0 AS bonustimeminutes
+				, 0 AS userorder
 			) AS tmp 
 		WHERE NOT EXISTS (
 			SELECT username FROM usertimetable WHERE username = ?
@@ -166,7 +168,6 @@ function update_user( $username = ""
 		);
 		$return_response = $response;
 	}
-
 	# Update login status
 	if (isset($loginstatus) && $username != ""){
 		$stmt = mysqli_stmt_init($conn);

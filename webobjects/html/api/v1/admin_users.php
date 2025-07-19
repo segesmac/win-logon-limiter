@@ -19,6 +19,7 @@ function modify_user( $username = ""
 	, $timeleftminutes = null
 	, $timeleftminutesadd = null
 	, $bonuscounters = null
+	, $userorder = null
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -45,6 +46,9 @@ function modify_user( $username = ""
 	}
 	if (!empty($data["bonuscounters"])) {
 		$bonuscounters = $data["bonuscounters"];
+	}
+	if (!empty($data["userorder"])) {
+		$userorder = $data["userorder"];
 	}
 	$return_response = array();
 
@@ -192,6 +196,33 @@ function modify_user( $username = ""
 			$return_response["timelimit"] = $response;
 		}
 	}
+	# Update user order
+        if (!empty($username) && isset($userorder)){
+                $stmt = mysqli_stmt_init($conn);
+                if (mysqli_stmt_prepare($stmt,
+                        "UPDATE usertimetable
+                            SET
+                                userorder = ?
+                            WHERE username = ?;"
+                )){
+                        mysqli_stmt_bind_param($stmt, "is", $userorder, $username);
+                        mysqli_stmt_execute($stmt);
+                        $affected_rows = mysqli_stmt_affected_rows($stmt);
+                        mysqli_stmt_close($stmt);
+                        if ($affected_rows == 0){
+                                $response = array(
+                                        'status' => 0,
+                                        'status_message' => "User $username doesn't exist! Unable to update order."
+                                );
+                        } else {
+                                $response = array(
+                                        'status' => 1,
+                                        'status_message' => "User order for $username updated successfully!"
+                                );
+                        }
+                        $return_response["userorder"] = $response;
+                }
+        }
 	header('Content-Type: application/json');
 	echo json_encode($return_response);
 	mysqli_close($conn);
@@ -281,8 +312,10 @@ if (isset($request_method)){
 			if (isset($_POST["bonuscounters"])){
 				$bonuscounters = strval($_POST["bonuscounters"]);
 			}
-			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters);
-			
+			if (isset($_POST["userorder"])){
+				$userorder = strval($_POST["userorder"]);
+			}
+			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters, @$userorder);
 			break;
 		case 'DELETE':
 			if (!empty($_GET["username"])){
