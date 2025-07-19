@@ -23,6 +23,7 @@ function modify_user( $username = ""
 	, $timeleftminutesadd = null
 	, $bonuscounters = null
 	, $userorder = null
+	, $token_username = null
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -541,7 +542,7 @@ if (isset($request_method)){
 			if (isset($_POST["userorder"])){
 				$userorder = strval($_POST["userorder"]);
 			}
-			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters, @$userorder);
+			modify_user(@$username, @$timelimit, @$bonusminutesadd, @$loginstatus, @$bonusminutes, @$timeleftminutes, @$timeleftminutesadd, @$bonuscounters, @$userorder, @$token_username);
 			break;
 		case 'DELETE':
 			if (!empty($_GET["username"])){
