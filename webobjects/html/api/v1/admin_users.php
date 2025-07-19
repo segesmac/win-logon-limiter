@@ -51,6 +51,7 @@ function modify_user( $username = ""
 		$userorder = $data["userorder"];
 	}
 	$return_response = array();
+	$response = array();
 
 
     # Return status if username is null
@@ -64,137 +65,323 @@ function modify_user( $username = ""
 
 	# Set bonus minutes to some value
 	if (!empty($username) && isset($bonusminutes)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = ? WHERE username = ?")){
+		// Begin a transaction
+                mysqli_begin_transaction($conn);
+                try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Set bonusminutes to $bonusminutes for $username successfully!";
 				$response = array(
 					'status' => $bonusminutes,
-					'status_message' => "Set bonusminutes to $bonusminutes for $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["bonusminutes"] = $response;
-		}
+			$log_stmt = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+                                throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_execute($log_stmt);
+                        if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+                                // This could mean the username wasn't found in the 'user' table,
+                                // or the log insert genuinely failed for another reason.
+                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                        }
+                        mysqli_stmt_close($log_stmt);
+
+                        // If all operations succeeded, commit the transaction
+                        mysqli_commit($conn);
+		} catch (Exception $e){
+                        // ERROR - rollback transaction
+                        mysqli_rollback($conn);
+                        $response = array(
+                                'status' => -1,
+                                'status_message' => "Transaction failed: " . $e->getMessage();
+                        );
+
+                }
+                $return_response["bonusminutes"] = $response;
 	}
 
 	# Set bonus counters to some value
 	if (!empty($username) && isset($bonuscounters)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonuscounters = ? WHERE username = ?")){
+		// Begin a transaction
+                mysqli_begin_transaction($conn);
+                try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonuscounters = ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $bonuscounters, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Set bonuscounters to $bonuscounters for $username successfully!";
 				$response = array(
 					'status' => $bonuscounters,
-					'status_message' => "Set bonuscounters to $bonuscounters for $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["bonuscounters"] = $response;
-		}
+			$log_stmt = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+                                throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_execute($log_stmt);
+                        if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+                                // This could mean the username wasn't found in the 'user' table,
+                                // or the log insert genuinely failed for another reason.
+                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                        }
+                        mysqli_stmt_close($log_stmt);
+
+                        // If all operations succeeded, commit the transaction
+                        mysqli_commit($conn);
+		} catch (Exception $e){
+                        // ERROR - rollback transaction
+                        mysqli_rollback($conn);
+                        $response = array(
+                                'status' => -1,
+                                'status_message' => "Transaction failed: " . $e->getMessage();
+                        );
+
+                }
+                $return_response["bonuscounters"] = $response;
 	}
 
 	# Add minutes to the bonus pool
 	if (!empty($username) && isset($bonusminutesadd)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
+		// Begin a transaction
+                mysqli_begin_transaction($conn);
+                try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $bonusminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Added $bonusminutesadd bonus minute(s) to $username successfully!";
 				$response = array(
 					'status' => $bonusminutesadd,
-					'status_message' => "Added $bonusminutesadd bonus minute(s) to $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["bonusminutesadd"] = $response;
-		}
+			$log_stmt = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+                                throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_execute($log_stmt);
+                        if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+                                // This could mean the username wasn't found in the 'user' table,
+                                // or the log insert genuinely failed for another reason.
+                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                        }
+                        mysqli_stmt_close($log_stmt);
+
+                        // If all operations succeeded, commit the transaction
+                        mysqli_commit($conn);
+		} catch (Exception $e){
+                        // ERROR - rollback transaction
+                        mysqli_rollback($conn);
+                        $response = array(
+                                'status' => -1,
+                                'status_message' => "Transaction failed: " . $e->getMessage();
+                        );
+
+                }
+                $return_response["bonusminutesadd"] = $response;
 	}
 	# Set regular minutes to some value
 	if (!empty($username) && isset($timeleftminutes)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = ? WHERE username = ?")){
+		// Begin a transaction
+                mysqli_begin_transaction($conn);
+                try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutes, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Set timeleftminutes to $timeleftminutes for $username successfully!";
 				$response = array(
 					'status' => $timeleftminutes,
-					'status_message' => "Set timeleftminutes to $timeleftminutes for $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["timeleftminutes"] = $response;
-		}
+			$log_stmt = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+                                throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_execute($log_stmt);
+                        if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+                                // This could mean the username wasn't found in the 'user' table,
+                                // or the log insert genuinely failed for another reason.
+                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                        }
+                        mysqli_stmt_close($log_stmt);
+
+                        // If all operations succeeded, commit the transaction
+                        mysqli_commit($conn);
+		} catch (Exception $e){
+                        // ERROR - rollback transaction
+                        mysqli_rollback($conn);
+                        $response = array(
+                                'status' => -1,
+                                'status_message' => "Transaction failed: " . $e->getMessage();
+                        );
+
+                }
+                $return_response["timeleftminutes"] = $response;
 	}
 	# Add minutes to the regular pool
 	if (!empty($username) && isset($timeleftminutesadd)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = timeleftminutes + ? WHERE username = ?")){
+		// Begin a transaction
+                mysqli_begin_transaction($conn);
+                try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = timeleftminutes + ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $timeleftminutesadd, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Added $timeleftminutesadd timeleft minute(s) to $username successfully!";
 				$response = array(
 					'status' => $timeleftminutesadd,
-					'status_message' => "Added $timeleftminutesadd timeleft minute(s) to $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["timeleftminutesadd"] = $response;
-		}
+			$log_stmt = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+                                throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_execute($log_stmt);
+                        if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+                                // This could mean the username wasn't found in the 'user' table,
+                                // or the log insert genuinely failed for another reason.
+                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                        }
+                        mysqli_stmt_close($log_stmt);
+
+                        // If all operations succeeded, commit the transaction
+                        mysqli_commit($conn);
+		} catch (Exception $e){
+                        // ERROR - rollback transaction
+                        mysqli_rollback($conn);
+                        $response = array(
+                                'status' => -1,
+                                'status_message' => "Transaction failed: " . $e->getMessage();
+                        );
+
+                }
+                $return_response["timeleftminutesadd"] = $response;
 	}
 	# Update the time limit to some value
 	if (!empty($username) && isset($timelimit)){
-		$stmt = mysqli_stmt_init($conn);
-		if (mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timelimitminutes = ? WHERE username = ?")){
+		// Begin a transaction
+		mysqli_begin_transaction($conn); 
+		try {
+			$stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timelimitminutes = ? WHERE username = ?")){
+				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
+			}
 			mysqli_stmt_bind_param($stmt, "ds", $timelimit, $username);
 			mysqli_stmt_execute($stmt);
 			$affected_rows = mysqli_stmt_affected_rows($stmt);
 			mysqli_stmt_close($stmt);
+			$logmessage = "";
 			if ($affected_rows == 0){
+				$logmessage = "User $username doesn't exist!";
 				$response = array(
 					'status' => 0,
-					'status_message' => "User $username doesn't exist!"
+					'status_message' => $logmessage
 				);
 			} else {
+				$logmessage = "Set timelimitminutes to $timelimit for $username successfully!";
 				$response = array(
 					'status' => $timelimit,
-					'status_message' => "Set timelimitminutes to $timelimit for $username successfully!"
+					'status_message' => $logmessage
 				);
 			}
-			$return_response["timelimit"] = $response;
+			$log_stmt = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
+				throw new Exception("Error preparing log statement: " . mysqli_error($conn));
+			}
+			mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+			mysqli_stmt_execute($log_stmt);
+			if (mysqli_stmt_affected_rows($log_stmt) === 0) {
+				// This could mean the username wasn't found in the 'user' table,
+				// or the log insert genuinely failed for another reason.
+				throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+			}
+			mysqli_stmt_close($log_stmt);
+
+			// If all operations succeeded, commit the transaction
+			mysqli_commit($conn);
+		} catch (Exception $e){
+			// ERROR - rollback transaction
+			mysqli_rollback($conn);
+			$response = array(
+				'status' => -1,
+				'status_message' => "Transaction failed: " . $e->getMessage();
+			);
+
 		}
+		$return_response["timelimit"] = $response;
 	}
 	# Update user order
         if (!empty($username) && isset($userorder)){
@@ -268,25 +455,62 @@ function delete_user($username = "") {
 	echo json_encode($response);
 	mysqli_close($conn);
 }
+
+function get_logs() {
+        require(__DIR__ . "/../connect.php");
+        $data = json_decode(file_get_contents('php://input'), true);
+        $loginterval = "48";
+        if (!empty($data["loginterval"])) {
+                $logintervaltest = strval($data["username"]);
+                // To prevent sql injection
+                if (is_numeric($logintervaltest)){
+                        $loginterval = $logintervaltest;
+                }
+        }
+        $query = "SELECT lt.logdatetime,
+                    ut.username,
+                    lt.logmessage
+             FROM logtable AS lt
+             JOIN usertable AS ut ON lt.usertableid = ut.usertableid
+             WHERE lt.logdatetime >= NOW() - INTERVAL " . $loginterval . " HOUR
+             ORDER BY lt.logdatetime DESC;";
+        $result=mysqli_query($conn, $query);
+        $response = array();
+        while($row=mysqli_fetch_assoc($result)){
+                $response[]=$row;
+        }
+        if (count($response) == 0){
+                $return_response = array (
+                        'status' => 0,
+                        'status_message' => "No logs exist for given time range: " . $loginterval . "!"
+                );
+                echo json_encode($return_response);
+        } elseif (count($response) > 0){
+                $return_response = array(
+                        'status' => 1,
+                        'status_message' => "Found logs successfully!",
+                        'payload' => $response
+                );
+        } else {
+                $return_response = array(
+                        'status' => 0,
+                        'status_message' =>  "Error: \n" . mysqli_error($conn)
+                );
+        }
+        header('Content-Type: application/json');
+        echo json_encode($return_response);
+        mysqli_close($conn);
+}
+
+
 $request_method=$_SERVER["REQUEST_METHOD"];
 if (isset($request_method)){
 	#echo "REQUEST_METHOD SET: $request_method";
 	switch($request_method){
-		/*case 'GET':
-			// retrive users
-			if(!empty($_GET["username"]))
-			{
-				$username=strval($_GET["username"]);
-				get_users($username);
-			}
-			else
-			{
-				get_users();
-			}
+		case 'GET':
+			// retrieve logs
+			get_logs();
 			break;
-		case 'POST':
-			insert_user();
-			break;*/
 		case 'POST':
 			if (isset($_POST["username"])){
 				$username=strval($_POST["username"]);
