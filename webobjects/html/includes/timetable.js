@@ -307,7 +307,32 @@ async function updateTable(datastring_prev) {
   }
   
   });
-  
+  if (storeJWT.jwtadmin == 1) {
+      $('#logtable').show();
+      const response = await fetch('api/v1/admin_users.php', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Authorization': `Bearer ${storeJWT.JWT}`
+            }
+            //body: encodeURIComponent("username") + '=' + encodeURIComponent(storeJWT.jwtuser) + '&'
+            //      + encodeURIComponent("oldpassword") + '=' + encodeURIComponent(formData2.oldpwd.value) + '&'
+            //      + encodeURIComponent("newpassword") + '=' + encodeURIComponent(formData2.newpsw2.value)
+      });
+      if (response.status >= 200 && response.status <= 299) {
+          json_response = await response.text();
+          try {
+            response_obj = JSON.parse(json_response);
+          } catch {
+            console.log("ERROR:");
+            console.log(json_response);
+          }
+          console.log("LOG_INFO:");
+          console.log(response_obj);
+      }
+  } else {
+      $('#logtable').hide();
+  }
   return datastring;
   //updateTable(datastring);
   //})();
