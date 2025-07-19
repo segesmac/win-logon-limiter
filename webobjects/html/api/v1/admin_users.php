@@ -112,7 +112,7 @@ function modify_user( $username = ""
                         mysqli_rollback($conn);
                         $response = array(
                                 'status' => -1,
-                                'status_message' => "Transaction failed: " . $e->getMessage()
+                                'status_message' => "Transaction failed for $token_username: " . $e->getMessage()
                         );
 
                 }
