@@ -2,6 +2,7 @@
 # Yes, I'm aware this is set up so that anyone can change the time limits, etc.  
 # If my children learn how to "hack" this system,
 # then I would call that a win! I'll set up authentication later
+$token_username = "jdoe";
 if (null == @$is_test){
 	require(__DIR__ . '/../jwt_auth.php');
 	if ($token->is_tempadmin == 0 && $token->is_admin == 0){
@@ -10,9 +11,8 @@ if (null == @$is_test){
 		exit;
 	}
 	$token_username = $token->username;
-} else {
-	$token_username = "jdoe";
 }
+
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
     , $timelimit = null
@@ -23,7 +23,7 @@ function modify_user( $username = ""
 	, $timeleftminutesadd = null
 	, $bonuscounters = null
 	, $userorder = null
-	, $token_username = null
+	, $token_username = "adoe"
 ){
 	require(__DIR__ . "/../connect.php");
 	$data = json_decode(file_get_contents('php://input'), true);
