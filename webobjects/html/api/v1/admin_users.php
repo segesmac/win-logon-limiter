@@ -9,6 +9,9 @@ if (null == @$is_test){
 		echo 'Admin access only';
 		exit;
 	}
+	$token_username = $token->username;
+} else {
+	$token_username = "adoe";
 }
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
@@ -53,7 +56,6 @@ function modify_user( $username = ""
 	$return_response = array();
 	$response = array();
 
-
     # Return status if username is null
 	if (empty($username)){
 		$response = array(
@@ -94,12 +96,12 @@ function modify_user( $username = ""
                         if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
                                 throw new Exception("Error preparing log statement: " . mysqli_error($conn));
                         }
-                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
                         mysqli_stmt_execute($log_stmt);
                         if (mysqli_stmt_affected_rows($log_stmt) === 0) {
                                 // This could mean the username wasn't found in the 'user' table,
                                 // or the log insert genuinely failed for another reason.
-                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                                throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
                         }
                         mysqli_stmt_close($log_stmt);
 
@@ -148,12 +150,12 @@ function modify_user( $username = ""
                         if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
                                 throw new Exception("Error preparing log statement: " . mysqli_error($conn));
                         }
-                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
                         mysqli_stmt_execute($log_stmt);
                         if (mysqli_stmt_affected_rows($log_stmt) === 0) {
                                 // This could mean the username wasn't found in the 'user' table,
                                 // or the log insert genuinely failed for another reason.
-                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                                throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
                         }
                         mysqli_stmt_close($log_stmt);
 
@@ -202,12 +204,12 @@ function modify_user( $username = ""
                         if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
                                 throw new Exception("Error preparing log statement: " . mysqli_error($conn));
                         }
-                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
                         mysqli_stmt_execute($log_stmt);
                         if (mysqli_stmt_affected_rows($log_stmt) === 0) {
                                 // This could mean the username wasn't found in the 'user' table,
                                 // or the log insert genuinely failed for another reason.
-                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                                throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
                         }
                         mysqli_stmt_close($log_stmt);
 
@@ -255,12 +257,12 @@ function modify_user( $username = ""
                         if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
                                 throw new Exception("Error preparing log statement: " . mysqli_error($conn));
                         }
-                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
                         mysqli_stmt_execute($log_stmt);
                         if (mysqli_stmt_affected_rows($log_stmt) === 0) {
                                 // This could mean the username wasn't found in the 'user' table,
                                 // or the log insert genuinely failed for another reason.
-                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                                throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
                         }
                         mysqli_stmt_close($log_stmt);
 
@@ -308,12 +310,12 @@ function modify_user( $username = ""
                         if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
                                 throw new Exception("Error preparing log statement: " . mysqli_error($conn));
                         }
-                        mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+                        mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
                         mysqli_stmt_execute($log_stmt);
                         if (mysqli_stmt_affected_rows($log_stmt) === 0) {
                                 // This could mean the username wasn't found in the 'user' table,
                                 // or the log insert genuinely failed for another reason.
-                                throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+                                throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
                         }
                         mysqli_stmt_close($log_stmt);
 
@@ -361,12 +363,12 @@ function modify_user( $username = ""
 			if (!mysqli_stmt_prepare($log_stmt, "INSERT INTO logtable (usertableid, logmessage) VALUES ((SELECT usertableid FROM usertable WHERE username = ?), ?)")) {
 				throw new Exception("Error preparing log statement: " . mysqli_error($conn));
 			}
-			mysqli_stmt_bind_param($log_stmt, "ss", $token->username, $logmessage);
+			mysqli_stmt_bind_param($log_stmt, "ss", $token_username, $logmessage);
 			mysqli_stmt_execute($log_stmt);
 			if (mysqli_stmt_affected_rows($log_stmt) === 0) {
 				// This could mean the username wasn't found in the 'user' table,
 				// or the log insert genuinely failed for another reason.
-				throw new Exception("Failed to insert log entry (possibly user " . $token->username . " not found).");
+				throw new Exception("Failed to insert log entry (possibly user " . $token_username . " not found).");
 			}
 			mysqli_stmt_close($log_stmt);
 
