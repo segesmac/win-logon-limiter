@@ -11,7 +11,7 @@ if (null == @$is_test){
 	}
 	$token_username = $token->username;
 } else {
-	$token_username = "adoe";
+	$token_username = "jdoe";
 }
 # require(__DIR__ . '/../jwt_auth.php'); # Commenting this out because the tests can't generate jwt tokens yet
 function modify_user( $username = ""
