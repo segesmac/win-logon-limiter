@@ -307,13 +307,104 @@ async function updateTable(datastring_prev) {
   }
   
   });
-  
+  if (storeJWT.jwtadmin == 1) {
+      $('#logtable').show();
+      const response = await fetch('api/v1/admin_users.php', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Authorization': `Bearer ${storeJWT.JWT}`
+            }
+            //body: encodeURIComponent("username") + '=' + encodeURIComponent(storeJWT.jwtuser) + '&'
+            //      + encodeURIComponent("oldpassword") + '=' + encodeURIComponent(formData2.oldpwd.value) + '&'
+            //      + encodeURIComponent("newpassword") + '=' + encodeURIComponent(formData2.newpsw2.value)
+      });
+      if (response.status >= 200 && response.status <= 299) {
+          json_response = await response.text();
+          try {
+            response_obj = JSON.parse(json_response);
+          } catch {
+            console.log("ERROR:");
+            console.log(json_response);
+          }
+          console.log("LOG_INFO:");
+          console.log(response_obj);
+	  updateLogTable(response_obj);
+      }
+  } else {
+      $('#logtable').hide();
+  }
   return datastring;
   //updateTable(datastring);
   //})();
 }
 
+function updateLogTable(data_object) {
+  var data = data_object.payload
+  const targetDiv = document.getElementById("logtable");
+  // Clear any existing content in the div
+  if (targetDiv) {
+      targetDiv.innerHTML = '';
+  } else {
+      console.error(`Target div with ID '${targetDivId}' not found.`);
+      return;
+  }
+  
+  // If no data or empty data, display a message
+  if (!data || data.length === 0) {
+      const noDataMessage = document.createElement('p');
+      noDataMessage.className = 'text-center text-gray-600 p-4';
+      noDataMessage.textContent = 'No log data available to display.';
+      targetDiv.appendChild(noDataMessage);
+      return;
+  }
+  
+  // Create table elements
+  const table = document.createElement('table');
+  table.className = 'min-w-full divide-y divide-gray-200 rounded-md overflow-hidden'; // Tailwind classes
 
+  const thead = document.createElement('thead');
+  thead.className = 'bg-gray-50'; // Tailwind class
+
+  const tbody = document.createElement('tbody');
+  tbody.className = 'bg-white divide-y divide-gray-200'; // Tailwind classes
+
+  // --- Create Table Headers ---
+  const headers = Object.keys(data[0]); // Get keys from the first object for headers
+  const headerRow = document.createElement('tr');
+
+  headers.forEach(headerText => {
+      const th = document.createElement('th');
+      th.className = 'px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'; // Tailwind classes
+      // Format header names for better readability (e.g., "logdatetime" -> "Log Datetime")
+      th.textContent = headerText.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // --- Create Table Body (Rows and Cells) ---
+  data.forEach(rowData => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50'; // Tailwind class
+      headers.forEach(header => {
+          const td = document.createElement('td');
+          td.className = 'px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm text-gray-900'; // Tailwind classes
+          td.textContent = rowData[header]; // Get value for the current header
+          tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  // Wrap the table in a responsive container
+  const tableContainer = document.createElement('div');
+  tableContainer.className = 'overflow-x-auto'; // Makes table scrollable on small screens
+  tableContainer.appendChild(table);
+
+  // Append the complete table to the target div
+  targetDiv.appendChild(tableContainer);
+}
 
 async function getTable(datastring_prev) {
   await $.getJSON( "api/v1/users.php", function( data ) {
