@@ -339,8 +339,8 @@ async function updateTable(datastring_prev) {
   //})();
 }
 
-function updateLogTable(data) {
-  var data_array = data.payload
+function updateLogTable(data_object) {
+  var data = data_object.payload
   const targetDiv = document.getElementById("logtable");
   // Clear any existing content in the div
   if (targetDiv) {
