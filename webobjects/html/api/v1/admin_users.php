@@ -487,7 +487,6 @@ function get_logs() {
                         'status' => 0,
                         'status_message' => "No logs exist for given time range: " . $loginterval . "!"
                 );
-                echo json_encode($return_response);
         } elseif (count($response) > 0){
                 $return_response = array(
                         'status' => 1,
