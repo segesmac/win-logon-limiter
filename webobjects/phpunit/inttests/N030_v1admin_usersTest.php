@@ -93,7 +93,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         $output = ob_get_clean();
 	$output_object = json_decode($output);
 
-        $this->assertEquals("Set <span style='color: orange;'>limitminutes</span>: <span style='color: red;'>0.00</span> → <span style='color: green;'>$test_limit_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timelimit'}->{'status_message'}));
+        $this->assertEquals("Set <span style='color: orange;'>timelimitminutes</span>: <span style='color: red;'>-1.00</span> → <span style='color: green;'>$test_limit_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timelimit'}->{'status_message'}));
         $this->assertEquals($test_limit_minutes, ($output_object->{'timelimit'}->{'status'}));
 
         // Test modify_user set time limit minutes to some value for username that doesn't exist
