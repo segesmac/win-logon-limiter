@@ -25,8 +25,8 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         $test_bonusminutes = 30;
         modify_user($test_username, null, null, null, $test_bonusminutes);
         $output = ob_get_clean();
-        $output_object = json_decode($output);
-        $this->assertEquals("Set bonusminutes to $test_bonusminutes for $test_username successfully!", ($output_object->{'bonusminutes'}->{'status_message'}));
+	$output_object = json_decode($output);
+        $this->assertEquals("Set <span style='color: orange;'>bonusminutes</span>: <span style='color: red;'>0.00</span> → <span style='color: green;'>$test_bonusminutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'bonusminutes'}->{'status_message'}));
         $this->assertEquals($test_bonusminutes, ($output_object->{'bonusminutes'}->{'status'}));
 
         // Test modify_user set bonus minutes to some value for username that doesn't exist
@@ -42,7 +42,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         modify_user($test_username, null, $test_bonusminutes);
         $output = ob_get_clean();
         $output_object = json_decode($output);
-        $this->assertEquals("Added $test_bonusminutes bonus minute(s) to $test_username successfully!", ($output_object->{'bonusminutesadd'}->{'status_message'}));
+        $this->assertEquals("Added $test_bonusminutes bonus minute(s) to 30.00 for $test_username successfully!", ($output_object->{'bonusminutesadd'}->{'status_message'}));
         $this->assertEquals($test_bonusminutes, ($output_object->{'bonusminutesadd'}->{'status'}));
 
         // Test modify_user add minutes to the bonus pool for username that doesn't exist
@@ -58,8 +58,8 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         $test_minutes = 30;
         modify_user($test_username, null, null, null, null, $test_minutes);
         $output = ob_get_clean();
-        $output_object = json_decode($output);
-        $this->assertEquals("Set timeleftminutes to $test_minutes for $test_username successfully!", ($output_object->{'timeleftminutes'}->{'status_message'}));
+	$output_object = json_decode($output);
+        $this->assertEquals("Set <span style='color: orange;'>timeleftminutes</span>: <span style='color: red;'>-1.00</span> → <span style='color: green;'>$test_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timeleftminutes'}->{'status_message'}));
         $this->assertEquals($test_minutes, ($output_object->{'timeleftminutes'}->{'status'}));
 
         // Test modify_user set regular minutes to some value for username that doesn't exist
@@ -75,7 +75,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         modify_user($test_username, null, null, null, null, null, $test_minutes);
         $output = ob_get_clean();
         $output_object = json_decode($output);
-        $this->assertEquals("Added $test_minutes timeleft minute(s) to $test_username successfully!", ($output_object->{'timeleftminutesadd'}->{'status_message'}));
+        $this->assertEquals("Added $test_minutes timeleft minute(s) to 30.00 for $test_username successfully!", ($output_object->{'timeleftminutesadd'}->{'status_message'}));
         $this->assertEquals($test_minutes, ($output_object->{'timeleftminutesadd'}->{'status'}));
 
         // Test modify_user add minutes to the regular pool for username that doesn't exist
@@ -91,8 +91,9 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         $test_limit_minutes = 60;
         modify_user($test_username, $test_limit_minutes);
         $output = ob_get_clean();
-        $output_object = json_decode($output);
-        $this->assertEquals("Set timelimitminutes to $test_limit_minutes for $test_username successfully!", ($output_object->{'timelimit'}->{'status_message'}));
+	$output_object = json_decode($output);
+
+        $this->assertEquals("Set <span style='color: orange;'>timelimitminutes</span>: <span style='color: red;'>-1.00</span> → <span style='color: green;'>$test_limit_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timelimit'}->{'status_message'}));
         $this->assertEquals($test_limit_minutes, ($output_object->{'timelimit'}->{'status'}));
 
         // Test modify_user set time limit minutes to some value for username that doesn't exist
