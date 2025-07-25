@@ -42,7 +42,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         modify_user($test_username, null, $test_bonusminutes);
         $output = ob_get_clean();
         $output_object = json_decode($output);
-        $this->assertEquals("Added $test_bonusminutes bonus minute(s) to 0.00 for $test_username successfully!", ($output_object->{'bonusminutesadd'}->{'status_message'}));
+        $this->assertEquals("Added $test_bonusminutes bonus minute(s) to 30.00 for $test_username successfully!", ($output_object->{'bonusminutesadd'}->{'status_message'}));
         $this->assertEquals($test_bonusminutes, ($output_object->{'bonusminutesadd'}->{'status'}));
 
         // Test modify_user add minutes to the bonus pool for username that doesn't exist
