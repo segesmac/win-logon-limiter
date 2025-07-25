@@ -390,7 +390,7 @@ function updateLogTable(data_object) {
       headers.forEach(header => {
           const td = document.createElement('td');
           td.className = 'px-4 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-sm text-gray-900'; // Tailwind classes
-          td.textContent = rowData[header]; // Get value for the current header
+          td.innerHTML = rowData[header]; // Get value for the current header
           tr.appendChild(td);
       });
       tbody.appendChild(tr);

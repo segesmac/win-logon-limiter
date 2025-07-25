@@ -68,9 +68,29 @@ function modify_user( $username = ""
 
 	# Set bonus minutes to some value
 	if (!empty($username) && isset($bonusminutes)){
+		$oldValue = null;
 		// Begin a transaction
                 mysqli_begin_transaction($conn);
                 try {
+			################ GET OLD VALUE ################
+                        $stmt_select = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($stmt_select, "SELECT bonustimeminutes FROM usertimetable WHERE username = ?")) {
+                                    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($stmt_select, "s", $username);
+                        mysqli_stmt_execute($stmt_select);
+                        mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+                        mysqli_stmt_fetch($stmt_select); // Fetch the row
+                        // Check if a row was found and assign the value
+                        if ($fetchedResult !== null) {
+                            $oldValue = (string)$fetchedResult; // Store as a string
+                        } else {
+                            // If no row found, decide how to handle.
+                            $oldValue = "null";
+                        }
+                        mysqli_stmt_close($stmt_select);
+                        ############### END GET OLD VALUE ##############
+
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -87,7 +107,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Set bonusminutes to $bonusminutes for $username successfully!";
+				$logmessage = "Set <span style='color: orange;'>bonusminutes</span>: <span style='color: red;'>$oldValue</span> → <span style='color: green;'>$bonusminutes</span> for <span style='color: blue;'>$username</span> successfully!";
 				$response = array(
 					'status' => $bonusminutes,
 					'status_message' => $logmessage
@@ -122,9 +142,29 @@ function modify_user( $username = ""
 
 	# Set bonus counters to some value
 	if (!empty($username) && isset($bonuscounters)){
+		$oldValue = null;
 		// Begin a transaction
                 mysqli_begin_transaction($conn);
                 try {
+			################ GET OLD VALUE ################
+                        $stmt_select = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($stmt_select, "SELECT bonuscounters FROM usertimetable WHERE username = ?")) {
+                                    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($stmt_select, "s", $username);
+                        mysqli_stmt_execute($stmt_select);
+                        mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+                        mysqli_stmt_fetch($stmt_select); // Fetch the row
+                        // Check if a row was found and assign the value
+                        if ($fetchedResult !== null) {
+                            $oldValue = (string)$fetchedResult; // Store as a string
+                        } else {
+                            // If no row found, decide how to handle.
+                            $oldValue = "null";
+                        }
+                        mysqli_stmt_close($stmt_select);
+                        ############### END GET OLD VALUE ##############
+
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonuscounters = ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -141,7 +181,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Set bonuscounters to $bonuscounters for $username successfully!";
+				$logmessage = "Set <span style='color: orange;'>bonuscounters</span>: <span style='color: red;'>$oldValue</span> → <span style='color: green;'>$bonuscounters</span> for <span style='color: blue;'>$username</span> successfully!";
 				$response = array(
 					'status' => $bonuscounters,
 					'status_message' => $logmessage
@@ -176,9 +216,29 @@ function modify_user( $username = ""
 
 	# Add minutes to the bonus pool
 	if (!empty($username) && isset($bonusminutesadd)){
+		$oldValue = null;
 		// Begin a transaction
                 mysqli_begin_transaction($conn);
                 try {
+			################ GET OLD VALUE ################
+                        $stmt_select = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($stmt_select, "SELECT bonustimeminutes FROM usertimetable WHERE username = ?")) {
+                                    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($stmt_select, "s", $username);
+                        mysqli_stmt_execute($stmt_select);
+                        mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+                        mysqli_stmt_fetch($stmt_select); // Fetch the row
+                        // Check if a row was found and assign the value
+                        if ($fetchedResult !== null) {
+                            $oldValue = (string)$fetchedResult; // Store as a string
+                        } else {
+                            // If no row found, decide how to handle.
+                            $oldValue = "null";
+                        }
+                        mysqli_stmt_close($stmt_select);
+                        ############### END GET OLD VALUE ##############
+
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), bonustimeminutes = bonustimeminutes + ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -195,7 +255,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Added $bonusminutesadd bonus minute(s) to $username successfully!";
+				$logmessage = "Added $bonusminutesadd bonus minute(s) to $oldValue for $username successfully!";
 				$response = array(
 					'status' => $bonusminutesadd,
 					'status_message' => $logmessage
@@ -229,9 +289,29 @@ function modify_user( $username = ""
 	}
 	# Set regular minutes to some value
 	if (!empty($username) && isset($timeleftminutes)){
+		$oldValue = null;
 		// Begin a transaction
                 mysqli_begin_transaction($conn);
                 try {
+			################ GET OLD VALUE ################
+                        $stmt_select = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($stmt_select, "SELECT timeleftminutes FROM usertimetable WHERE username = ?")) {
+                                    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($stmt_select, "s", $username);
+                        mysqli_stmt_execute($stmt_select);
+                        mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+                        mysqli_stmt_fetch($stmt_select); // Fetch the row
+                        // Check if a row was found and assign the value
+                        if ($fetchedResult !== null) {
+                            $oldValue = (string)$fetchedResult; // Store as a string
+                        } else {
+                            // If no row found, decide how to handle.
+                            $oldValue = "null";
+                        }
+                        mysqli_stmt_close($stmt_select);
+                        ############### END GET OLD VALUE ##############
+			
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -248,7 +328,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Set timeleftminutes to $timeleftminutes for $username successfully!";
+				$logmessage = "Set <span style='color: orange;'>timeleftminutes</span>: <span style='color: red;'>$oldValue</span> → <span style='color: green;'>$timeleftminutes</span> for <span style='color: blue;'>$username</span> successfully!";
 				$response = array(
 					'status' => $timeleftminutes,
 					'status_message' => $logmessage
@@ -282,9 +362,29 @@ function modify_user( $username = ""
 	}
 	# Add minutes to the regular pool
 	if (!empty($username) && isset($timeleftminutesadd)){
+		$oldValue = null;
 		// Begin a transaction
                 mysqli_begin_transaction($conn);
-                try {
+		try {
+			################ GET OLD VALUE ################
+                        $stmt_select = mysqli_stmt_init($conn);
+                        if (!mysqli_stmt_prepare($stmt_select, "SELECT timeleftminutes FROM usertimetable WHERE username = ?")) {
+                                    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+                        }
+                        mysqli_stmt_bind_param($stmt_select, "s", $username);
+                        mysqli_stmt_execute($stmt_select);
+                        mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+                        mysqli_stmt_fetch($stmt_select); // Fetch the row
+                        // Check if a row was found and assign the value
+                        if ($fetchedResult !== null) {
+                            $oldValue = (string)$fetchedResult; // Store as a string
+                        } else {
+                            // If no row found, decide how to handle.
+                            $oldValue = "null";
+                        }
+                        mysqli_stmt_close($stmt_select);
+                        ############### END GET OLD VALUE ##############
+
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timeleftminutes = timeleftminutes + ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -301,7 +401,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Added $timeleftminutesadd timeleft minute(s) to $username successfully!";
+				$logmessage = "Added $timeleftminutesadd timeleft minute(s) to $oldValue for $username successfully!";
 				$response = array(
 					'status' => $timeleftminutesadd,
 					'status_message' => $logmessage
@@ -335,9 +435,29 @@ function modify_user( $username = ""
 	}
 	# Update the time limit to some value
 	if (!empty($username) && isset($timelimit)){
+		$oldValue = null;
 		// Begin a transaction
 		mysqli_begin_transaction($conn); 
 		try {
+			################ GET OLD VALUE ################
+			$stmt_select = mysqli_stmt_init($conn);
+			if (!mysqli_stmt_prepare($stmt_select, "SELECT timelimitminutes FROM usertimetable WHERE username = ?")) {
+				    throw new Exception("Error preparing SELECT statement: " . mysqli_error($conn));
+			}
+			mysqli_stmt_bind_param($stmt_select, "s", $username);
+			mysqli_stmt_execute($stmt_select);
+			mysqli_stmt_bind_result($stmt_select, $fetchedResult); // Bind the result to a variable
+			mysqli_stmt_fetch($stmt_select); // Fetch the row
+			// Check if a row was found and assign the value
+			if ($fetchedResult !== null) {
+			    $oldValue = (string)$fetchedResult; // Store as a string
+			} else {
+			    // If no row found, decide how to handle.
+			    $oldValue = "null";
+			}
+			mysqli_stmt_close($stmt_select);
+			############### END GET OLD VALUE ##############
+			
 			$stmt = mysqli_stmt_init($conn);
 			if (!mysqli_stmt_prepare($stmt, "UPDATE usertimetable SET lastrowupdate = NOW(), timelimitminutes = ? WHERE username = ?")){
 				throw new Exception("Error preparing update statement: " . mysqli_error($conn));
@@ -354,7 +474,7 @@ function modify_user( $username = ""
 					'status_message' => $logmessage
 				);
 			} else {
-				$logmessage = "Set timelimitminutes to $timelimit for $username successfully!";
+				$logmessage = "Set <span style='color: orange;'>timelimitminutes</span>: <span style='color: red;'>$oldValue</span> → <span style='color: green;'>$timelimit</span> for <span style='color: blue;'>$username</span> successfully!";
 				$response = array(
 					'status' => $timelimit,
 					'status_message' => $logmessage
