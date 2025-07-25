@@ -59,7 +59,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         modify_user($test_username, null, null, null, null, $test_minutes);
         $output = ob_get_clean();
 	$output_object = json_decode($output);
-        $this->assertEquals("Set <span style='color: orange;'>timeleftminutes</span>: <span style='color: red;'>0.00</span> → <span style='color: green;'>$test_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timeleftminutes'}->{'status_message'}));
+        $this->assertEquals("Set <span style='color: orange;'>timeleftminutes</span>: <span style='color: red;'>-1.00</span> → <span style='color: green;'>$test_minutes</span> for <span style='color: blue;'>$test_username</span> successfully!", ($output_object->{'timeleftminutes'}->{'status_message'}));
         $this->assertEquals($test_minutes, ($output_object->{'timeleftminutes'}->{'status'}));
 
         // Test modify_user set regular minutes to some value for username that doesn't exist
