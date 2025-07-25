@@ -75,7 +75,7 @@ class N030_v1admin_usersTest extends PHPUnit\Framework\TestCase
         modify_user($test_username, null, null, null, null, null, $test_minutes);
         $output = ob_get_clean();
         $output_object = json_decode($output);
-        $this->assertEquals("Added $test_minutes timeleft minute(s) to 0.00 for $test_username successfully!", ($output_object->{'timeleftminutesadd'}->{'status_message'}));
+        $this->assertEquals("Added $test_minutes timeleft minute(s) to 30.00 for $test_username successfully!", ($output_object->{'timeleftminutesadd'}->{'status_message'}));
         $this->assertEquals($test_minutes, ($output_object->{'timeleftminutesadd'}->{'status'}));
 
         // Test modify_user add minutes to the regular pool for username that doesn't exist
