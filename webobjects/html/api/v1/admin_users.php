@@ -582,7 +582,7 @@ function delete_user($username = "") {
 function get_logs() {
         require(__DIR__ . "/../connect.php");
         $data = json_decode(file_get_contents('php://input'), true);
-        $loginterval = "48";
+        $loginterval = "192";
         if (!empty($data["loginterval"])) {
                 $logintervaltest = strval($data["username"]);
                 // To prevent sql injection
